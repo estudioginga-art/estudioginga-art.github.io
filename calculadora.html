@@ -68,7 +68,7 @@ body { font-family: var(--font-body); background: var(--paper); color: var(--ink
 .result-hero { background: var(--terra); padding: 1.8rem 1.5rem 1.5rem; position: relative; overflow: hidden; flex-shrink: 0; }
 .result-hero::after { content: ''; position: absolute; right: -50px; top: -50px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.07); pointer-events: none; }
 .result-hero-label { font-size: .58rem; letter-spacing: .2em; text-transform: uppercase; opacity: .65; margin-bottom: .35rem; }
-.result-hero-value { font-family: var(--font-display); font-size: 2.8rem; font-weight: 600; line-height: 1; transition: all .3s cubic-bezier(.34,1.56,.64,1); position: relative; z-index: 1; }
+.result-hero-value { font-family: var(--font-display); font-size: 2.8rem; font-weight: 600; line-height: 1; transition: none; position: relative; z-index: 1; }
 .result-hero-value.bump { transform: scale(1.04); }
 .result-hero-sub { font-size: .7rem; opacity: .55; margin-top: .35rem; font-weight: 300; }
 .result-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid rgba(255,255,255,.12); margin-top: 1.2rem; }
@@ -165,11 +165,12 @@ body { font-family: var(--font-body); background: var(--paper); color: var(--ink
       <div class="prow"><span class="prow-name">Área de referência (m²)</span><input id="p-arearef" type="number" value="60" onchange="render()"></div>
       <div class="prow"><span class="prow-name">Expoente de escala área</span><input id="p-exp" type="number" value="0.55" step="0.01" onchange="render()"></div>
       <div class="prow"><span class="prow-name">Horas Projeto Legal</span><input id="p-hlegal" type="number" value="22" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Base Proj. Legal 60m² (R$)</span><input id="p-vlegal" type="number" value="3047" onchange="render()"></div>
     </div>
     <div class="pb">
       <div class="pb-title">Fatores</div>
       <div class="prow"><span class="prow-name">Apartamento</span><input id="p-apto" type="number" value="1.0" step="0.05" onchange="render()"></div>
-      <div class="prow"><span class="prow-name">Casa</span><input id="p-casa" type="number" value="1.2" step="0.05" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Casa</span><input id="p-casa" type="number" value="1.141" step="0.05" onchange="render()"></div>
       <div class="prow"><span class="prow-name">Comercial</span><input id="p-com" type="number" value="1.1" step="0.05" onchange="render()"></div>
       <div class="prow"><span class="prow-name">Simples</span><input id="p-simples" type="number" value="0.85" step="0.05" onchange="render()"></div>
       <div class="prow"><span class="prow-name">Médio</span><input id="p-medio" type="number" value="1.0" step="0.05" onchange="render()"></div>
@@ -306,9 +307,10 @@ function P() {
     areaRef: gv('p-arearef') || 60,
     exp:     gv('p-exp')     || 0.55,
     hLegal:  gv('p-hlegal')  || 22,
+    vLegal:  gv('p-vlegal')  || 4500,
     ft: {
       apto: gv('p-apto')    || 1.0,
-      casa: gv('p-casa')    || 1.2,
+      casa: gv('p-casa')    || 1.141,
       com:  gv('p-com')     || 1.1,
     },
     fc: {
@@ -329,7 +331,7 @@ function P() {
 // valor_projeto = (custo_folha + custo_fixo) * markup
 // Se casa nova: adiciona Projeto Legal = (hLegal * rateSocias * markup_legal)
 
-const COMODOS_BASE = 1.3263527280383436; // calibrado para replicar Excel
+const COMODOS_BASE = 5.277630793094457; // calibrado para replicar Excel
 
 function calc() {
   const p = P();
@@ -344,12 +346,11 @@ function calc() {
   const custoFixo   = hTotal * p.fixoH;
   const valorProjeto = (custoFolha + custoFixo) * p.markup;
 
-  // Projeto Legal (só casa nova)
-  const temLegal = S.escopo === 'nova';
-  const hLegal   = temLegal ? p.hLegal : 0;
-  // Legal usa rate de sócias (90/h), mas no Excel o valor típico é ~4500
-  // Vamos usar a mesma lógica: hLegal * rateMix * markup
-  const valorLegal = temLegal ? (hLegal * p.rateMix + hLegal * p.fixoH) * p.markup : 0;
+  // Projeto Legal (só casa nova) — escala com área, base R$3047 para 60m²
+  const temLegal   = S.escopo === 'nova';
+  const hLegal     = temLegal ? p.hLegal : 0;
+  const legalBase  = gv('p-vlegal') || 3047;
+  const valorLegal = temLegal ? Math.ceil(legalBase * fArea / 50) * 50 : 0;
 
   const valorTotal  = valorProjeto + valorLegal;
   const arredondado = Math.ceil(valorTotal / 100) * 100;
@@ -375,13 +376,13 @@ const brl2 = v => 'R$\u00a0' + v.toLocaleString('pt-BR', {minimumFractionDigits:
 
 // ── RENDER ──
 function render() {
+  S.area = parseFloat(document.getElementById('area')?.value) || 80;
   const r = calc();
 
   // Hero
   const hv = document.getElementById('hero-val');
   hv.textContent = r.arredondado > 0 ? brl(r.arredondado) : 'R$ —';
-  hv.classList.add('bump');
-  setTimeout(() => hv.classList.remove('bump'), 320);
+  
 
   document.getElementById('hero-sub').textContent =
     `${r.hTotal}h estimadas · markup ${Math.round((r.p.markup-1)*100)}%`;
@@ -458,6 +459,21 @@ Assessoria de obra: ${brl2(r.p.assess)}/mês (cobrada separadamente)`;
 
 // ── CONTROLES ──
 let _tA = null, _cA = null, _eA = null;
+
+// Init: captura os botões ativos no carregamento
+window.addEventListener('DOMContentLoaded', () => {
+  _tA = document.querySelector('.toggle-group .tgl.active');
+  // complexidade e escopo — pega pelo grupo
+  const groups = document.querySelectorAll('.toggle-group');
+  groups.forEach(g => {
+    const active = g.querySelector('.tgl.active');
+    if (!active) return;
+    const txt = active.textContent.trim();
+    if (['Simples','Médio','Complexo','Premium'].includes(txt)) _cA = active;
+    if (['Reforma / Interiores','Casa nova'].includes(txt)) _eA = active;
+    if (['Apartamento','Casa','Comercial'].includes(txt)) _tA = active;
+  });
+});
 
 function setTipo(t, btn) {
   S.tipo = t;
