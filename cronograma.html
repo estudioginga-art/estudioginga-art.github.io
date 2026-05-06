@@ -204,7 +204,7 @@ body {
   text-align: center;
   white-space: nowrap;
 }
-.tl-table th.label-col { text-align: left; min-width: 180px; padding-left: 1rem; }
+.tl-table th.label-col { text-align: left; min-width: 220px; padding-left: 1rem; }
 .tl-table th.week-col { min-width: 70px; }
 
 .tl-table td { padding: 0; border-bottom: 1px solid rgba(0,0,0,.04); }
@@ -277,6 +277,25 @@ body {
 .empty-icon { font-size: 3rem; opacity: .25; }
 .empty-title { font-family: var(--font-display); font-size: 1.5rem; font-style: italic; }
 .empty-sub { font-size: .82rem; font-weight: 300; max-width: 300px; line-height: 1.6; }
+
+.tabs-bar { background: var(--card); border-bottom: 1px solid var(--border); display: flex; padding: 0 1.8rem; flex-shrink: 0; }
+.tab-item { padding: .8rem 1.1rem; font-size: .78rem; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s, border-color .15s; }
+.tab-item:hover { color: var(--ink); }
+.tab-item.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 600; }
+
+.hist-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.3rem; margin-bottom: .8rem; display: flex; align-items: center; gap: 1.2rem; }
+.hist-card:hover { border-color: var(--teal); }
+.hist-info { flex: 1; min-width: 0; }
+.hist-nome { font-size: .88rem; font-weight: 600; color: var(--ink); margin-bottom: .2rem; }
+.hist-det { font-size: .7rem; color: var(--muted); font-weight: 300; }
+.hist-sem { font-family: var(--font-display); font-size: 1.2rem; font-style: italic; color: var(--teal-d); flex-shrink: 0; }
+.hist-data { font-size: .62rem; color: var(--muted); text-align: right; min-width: 50px; flex-shrink: 0; }
+.hist-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: .9rem; padding: .3rem; border-radius: 4px; transition: color .15s; }
+.hist-del:hover { color: #c0392b; }
+.hist-empty { text-align: center; padding: 3rem; color: var(--muted); font-family: var(--font-display); font-style: italic; font-size: 1.1rem; }
+
+.hist-abrir { background: none; border: 1.5px solid var(--border); border-radius: 4px; color: var(--teal); cursor: pointer; font-size: .82rem; padding: .25rem .5rem; transition: all .15s; flex-shrink: 0; }
+.hist-abrir:hover { background: rgba(58,174,188,.1); border-color: var(--teal); }
 </style>
 </head>
 <body>
@@ -289,7 +308,21 @@ body {
   <span class="topbar-title">Cronograma de Projeto</span>
 </div>
 
-<div class="page">
+<div class="tabs-bar">
+  <div class="tab-item active" onclick="setTab('cronograma',this)">Cronograma</div>
+  <div class="tab-item" onclick="setTab('historico',this)">Histórico de cronogramas</div>
+</div>
+
+<!-- HISTÓRICO -->
+<div id="historico-panel" style="display:none;padding:2rem;max-width:1000px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">
+    <span style="font-size:.62rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);">Cronogramas salvos</span>
+    <button onclick="limparHistorico()" style="padding:.3rem .8rem;background:none;border:1.5px solid var(--border);border-radius:5px;font-family:var(--font-body);font-size:.72rem;color:var(--muted);cursor:pointer;">Limpar tudo</button>
+  </div>
+  <div id="historico-lista"></div>
+</div>
+
+<div class="page" id="cronograma-panel">
 
   <!-- SIDEBAR -->
   <div class="sidebar">
@@ -372,6 +405,8 @@ body {
       Gerar cronograma
     </button>
     <button class="copy-btn2" id="copy-txt-btn" onclick="copiarTexto()">Copiar texto para proposta</button>
+    <button class="copy-btn2" id="salvar-btn" onclick="salvarCronograma()" style="border-color:var(--teal);color:var(--teal);">Salvar cronograma</button>
+    <div id="salvar-fb" style="font-size:.7rem;color:var(--teal-d);text-align:center;min-height:1rem;"></div>
 
   </div>
 
@@ -509,19 +544,17 @@ function gerar() {
   const en = S.escopo === 'nova' ? 'Casa nova' : 'Reforma / Interiores';
 
   _propostaTexto =
-    'CRONOGRAMA · ' + emp.toUpperCase() + '\n' +
-    'Cliente: ' + cli + '\n' +
-    'Tipo: ' + tn + ' · ' + area + ' m² · ' + en + ' · ' + cn + '\n\n' +
+    'Tipo: ' + tn + ' · ' + area + ' m² · ' + en + ' · ' + cn + '\n' +
     'Início: ' + fmt(di) + '\n' +
     'Entrega final: ' + fmt(dataFim) + '\n' +
-    'Total: ' + totalSem + ' semanas · ' + totalH + 'h estimadas\n\n' +
+    'Total: ' + totalSem + ' semanas · ' + totalH + 'h estimadas\n' +
+    'Dedicação da equipe: ' + S.dedicacao + 'h/semana\n\n' +
     'ETAPAS:\n' +
     etapasDatas.map(e => '  • ' + e.nome + ': ' + e.sem + ' semana' + (e.sem>1?'s':'') + ' (' + fmtS(e.inicio) + ' → ' + fmtS(e.fim) + ')').join('\n') + '\n\n' +
     'MARCOS:\n' +
     '  • Anteprojeto: ' + fmt(ep ? ep.fim : dataFim) + '\n' +
     '  • Executivo: '   + fmt(exe ? exe.fim : dataFim) + '\n' +
-    '  • Entrega final: ' + fmt(dataFim) + '\n\n' +
-    'Dedicação: ' + S.dedicacao + 'h/semana';
+    '  • Entrega final: ' + fmt(dataFim);
 
   document.getElementById('gantt-area').innerHTML =
     '<div class="gantt-meta-bar">' +
@@ -587,6 +620,135 @@ window.addEventListener('DOMContentLoaded', () => {
     String(today.getMonth()+1).padStart(2,'0') + '-' +
     String(today.getDate()).padStart(2,'0');
 });
+
+function setTab(t, btn) {
+  document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('cronograma-panel').style.display = t === 'cronograma' ? 'flex' : 'none';
+  document.getElementById('historico-panel').style.display  = t === 'historico'  ? 'block' : 'none';
+  if (t === 'historico') renderHistorico();
+}
+
+function salvarCronograma() {
+  if (!_propostaTexto) { alert('Gere o cronograma antes de salvar.'); return; }
+  const area    = parseFloat(document.getElementById('area').value) || 80;
+  const cli     = document.getElementById('cliente').value || '(sem nome)';
+  const emp     = document.getElementById('empreend').value || '(sem empreendimento)';
+  const tn = {apto:'Apartamento',casa:'Casa',com:'Comercial'}[S.tipo];
+  const cn = {simples:'Simples',medio:'Médio',complexo:'Complexo',premium:'Premium'}[S.complexidade];
+  const en = S.escopo === 'nova' ? 'Casa nova' : 'Reforma';
+
+  // calc totals from last gerar
+  const etapas = ETAPAS
+    .filter(e => !e.somenteNova || S.escopo === 'nova')
+    .map(e => { const h = Math.round(calcHoras(e)); return { h, sem: Math.max(1, Math.ceil(h / S.dedicacao)) }; });
+  const totalSem = etapas.reduce((s,e)=>s+e.sem,0);
+  const totalH   = etapas.reduce((s,e)=>s+e.h,0);
+
+  const comodos = parseInt(document.getElementById('comodos').value) || 7;
+  const dataInicio = document.getElementById('data-inicio').value;
+  const item = {
+    id: Date.now(),
+    data: new Date().toLocaleDateString('pt-BR'),
+    cliente: cli, empreendimento: emp,
+    tipo: S.tipo, tipoNome: tn,
+    complexidade: S.complexidade, complexidadeNome: cn,
+    escopo: S.escopo, escopoNome: en,
+    area, comodos, dedicacao: S.dedicacao, dataInicio,
+    semanas: totalSem, horas: totalH,
+    texto: _propostaTexto
+  };
+
+  const lista = JSON.parse(localStorage.getItem('ginga_cronogramas') || '[]');
+  lista.unshift(item);
+  localStorage.setItem('ginga_cronogramas', JSON.stringify(lista));
+
+  const fb = document.getElementById('salvar-fb');
+  fb.textContent = '✓ Cronograma salvo!';
+  setTimeout(() => { fb.textContent = ''; }, 3000);
+}
+
+function renderHistorico() {
+  const lista = JSON.parse(localStorage.getItem('ginga_cronogramas') || '[]');
+  const el = document.getElementById('historico-lista');
+  if (!lista.length) {
+    el.innerHTML = '<div class="hist-empty">Nenhum cronograma salvo ainda.</div>';
+    return;
+  }
+  el.innerHTML = lista.map(o =>
+    '<div class="hist-card" style="cursor:pointer;" onclick="abrirCronograma(' + o.id + ')">' +
+      '<div class="hist-info">' +
+        '<div class="hist-nome">' + o.cliente + ' · ' + o.empreendimento + '</div>' +
+        '<div class="hist-det">' + (o.tipoNome||o.tipo) + ' · ' + o.area + 'm² · ' + (o.complexidadeNome||o.complexidade) + ' · ' + (o.escopoNome||o.escopo) + ' · ' + o.dedicacao + 'h/sem</div>' +
+      '</div>' +
+      '<div class="hist-sem">' + o.semanas + ' semanas</div>' +
+      '<div class="hist-data">' + o.data + '</div>' +
+      '<button class="hist-abrir" onclick="event.stopPropagation();abrirCronograma(' + o.id + ')" title="Abrir">↗</button>' +
+      '<button class="hist-del" onclick="event.stopPropagation();deletarHist(' + o.id + ')" title="Remover">✕</button>' +
+    '</div>'
+  ).join('');
+}
+
+function deletarHist(id) {
+  let lista = JSON.parse(localStorage.getItem('ginga_cronogramas') || '[]');
+  lista = lista.filter(o => o.id !== id);
+  localStorage.setItem('ginga_cronogramas', JSON.stringify(lista));
+  renderHistorico();
+}
+
+function limparHistorico() {
+  if (confirm('Apagar todos os cronogramas salvos?')) {
+    localStorage.removeItem('ginga_cronogramas');
+    renderHistorico();
+  }
+}
+
+function abrirCronograma(id) {
+  const lista = JSON.parse(localStorage.getItem('ginga_cronogramas') || '[]');
+  const o = lista.find(x => x.id === id);
+  if (!o) return;
+
+  // Restore form values
+  document.getElementById('cliente').value   = o.cliente !== '(sem nome)' ? o.cliente : '';
+  document.getElementById('empreend').value  = o.empreendimento !== '(sem empreendimento)' ? o.empreendimento : '';
+  document.getElementById('area').value      = o.area;
+  document.getElementById('comodos').value   = o.comodos || 7;
+  if (o.dataInicio) document.getElementById('data-inicio').value = o.dataInicio;
+
+  // Restore S state and toggle buttons
+  const tipoMap = {apto:'Apto', casa:'Casa', com:'Comercial'};
+  const cxMap   = {simples:'Simples', medio:'Médio', complexo:'Complexo', premium:'Premium'};
+  const esMap   = {reforma:'Reforma / Interiores', nova:'Casa nova'};
+  const dedMap  = {20:'20h/sem', 30:'30h/sem', 40:'40h/sem'};
+
+  S.tipo          = o.tipo;
+  S.complexidade  = o.complexidade;
+  S.escopo        = o.escopo;
+  S.dedicacao     = o.dedicacao;
+
+  // Update all toggle buttons
+  document.querySelectorAll('.toggle-group').forEach(g => {
+    g.querySelectorAll('.tgl').forEach(btn => {
+      const txt = btn.textContent.trim();
+      btn.classList.remove('active');
+      if (txt === tipoMap[o.tipo])         btn.classList.add('active');
+      if (txt === cxMap[o.complexidade])   btn.classList.add('active');
+      if (txt === esMap[o.escopo])         btn.classList.add('active');
+      if (txt === dedMap[o.dedicacao])     btn.classList.add('active');
+    });
+  });
+
+  // Switch to cronograma tab and generate
+  const tabBtn = document.querySelector('.tab-item');
+  document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+  tabBtn.classList.add('active');
+  document.getElementById('cronograma-panel').style.display = 'flex';
+  document.getElementById('historico-panel').style.display  = 'none';
+
+  gerar();
+  window.scrollTo(0, 0);
+}
 </script>
+</div>
 </body>
 </html>
