@@ -207,7 +207,7 @@ body {
 .tl-table th.label-col { text-align: left; min-width: 220px; padding-left: 1rem; }
 .tl-table th.week-col { min-width: 70px; }
 
-.tl-table td { padding: 0; border-bottom: 1px solid rgba(0,0,0,.04); }
+.tl-table td { padding: 0; border-bottom: 1px solid rgba(0,0,0,.04); vertical-align: middle; height: 56px; }
 .tl-table tr:last-child td { border-bottom: none; }
 .tl-table tr:hover td { background: rgba(58,174,188,.02); }
 
@@ -215,11 +215,12 @@ body {
   padding: .7rem 1.2rem;
   border-right: 1px solid var(--border);
   vertical-align: middle;
+  height: 56px;
 }
 .etapa-label-name { font-size: .78rem; font-weight: 500; color: var(--ink); display: block; margin-bottom: .2rem; }
 .etapa-label-sub { font-size: .62rem; color: var(--muted); font-weight: 300; margin-top: .1rem; }
 
-.bar-cell { padding: .6rem .3rem; text-align: center; vertical-align: middle; }
+.bar-cell { padding: .4rem .3rem; text-align: center; vertical-align: middle; height: 56px; }
 .bar { height: 28px; border-radius: 4px; display: block; transition: opacity .15s; }
 .bar:hover { opacity: .8; }
 .bar-start { border-radius: 6px 2px 2px 6px; }
@@ -751,6 +752,31 @@ function abrirCronograma(id) {
 }
 
 function resetarCronograma() {
+  // Limpar campos
+  document.getElementById('cliente').value  = '';
+  document.getElementById('empreend').value = '';
+  document.getElementById('area').value     = 80;
+  document.getElementById('comodos').value  = 7;
+  S.comodos = 7;
+
+  // Resetar toggles para padrão
+  S.tipo = 'apto'; S.complexidade = 'medio'; S.escopo = 'reforma'; S.dedicacao = 30;
+  document.querySelectorAll('.toggle-group').forEach(g => {
+    g.querySelectorAll('.tgl').forEach(b => b.classList.remove('active'));
+    const first = g.querySelector('.tgl');
+    // activate correct default
+    g.querySelectorAll('.tgl').forEach(b => {
+      const t = b.textContent.trim();
+      if (['Apto','Médio','Reforma / Interiores','30h/sem'].includes(t)) b.classList.add('active');
+    });
+  });
+
+  // Resetar data para hoje
+  const today = new Date();
+  document.getElementById('data-inicio').value =
+    today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+
+  // Limpar gantt
   document.getElementById('gantt-area').innerHTML =
     '<div class="empty">' +
       '<div class="empty-icon">🗓️</div>' +
