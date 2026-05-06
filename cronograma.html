@@ -198,7 +198,7 @@ body {
   letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: .55rem .6rem;
+  padding: .7rem .6rem;
   background: var(--paper);
   border-bottom: 1px solid var(--border);
   text-align: center;
@@ -212,14 +212,15 @@ body {
 .tl-table tr:hover td { background: rgba(58,174,188,.02); }
 
 .etapa-label {
-  padding: .6rem 1rem;
+  padding: .7rem 1.2rem;
   border-right: 1px solid var(--border);
+  vertical-align: middle;
 }
-.etapa-label-name { font-size: .78rem; font-weight: 500; color: var(--ink); }
+.etapa-label-name { font-size: .78rem; font-weight: 500; color: var(--ink); display: block; margin-bottom: .2rem; }
 .etapa-label-sub { font-size: .62rem; color: var(--muted); font-weight: 300; margin-top: .1rem; }
 
-.bar-cell { padding: .4rem .3rem; text-align: center; }
-.bar { height: 26px; border-radius: 4px; display: block; transition: opacity .15s; }
+.bar-cell { padding: .6rem .3rem; text-align: center; vertical-align: middle; }
+.bar { height: 28px; border-radius: 4px; display: block; transition: opacity .15s; }
 .bar:hover { opacity: .8; }
 .bar-start { border-radius: 6px 2px 2px 6px; }
 .bar-end   { border-radius: 2px 6px 6px 2px; }
@@ -404,7 +405,7 @@ body {
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       Gerar cronograma
     </button>
-    <button class="copy-btn2" id="copy-txt-btn" onclick="copiarTexto()">Copiar texto para proposta</button>
+    <button class="copy-btn2" id="reset-btn" onclick="resetarCronograma()" style="border-color:var(--border);color:var(--muted);">↺ Limpar cronograma</button>
     <button class="copy-btn2" id="salvar-btn" onclick="salvarCronograma()" style="border-color:var(--teal);color:var(--teal);">Salvar cronograma</button>
     <div id="salvar-fb" style="font-size:.7rem;color:var(--teal-d);text-align:center;min-height:1rem;"></div>
 
@@ -747,6 +748,16 @@ function abrirCronograma(id) {
 
   gerar();
   window.scrollTo(0, 0);
+}
+
+function resetarCronograma() {
+  document.getElementById('gantt-area').innerHTML =
+    '<div class="empty">' +
+      '<div class="empty-icon">🗓️</div>' +
+      '<div class="empty-title">Cronograma do projeto</div>' +
+      '<div class="empty-sub">Preencha os dados ao lado e clique em "Gerar cronograma" para visualizar as etapas e datas de entrega.</div>' +
+    '</div>';
+  _propostaTexto = '';
 }
 </script>
 </div>
