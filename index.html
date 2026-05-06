@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ferramentas · Estúdio Ginga</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --terra: #B85C2A; --terra-d: #8f4420; --terra-l: #d4795a;
+  --ink: #1C1712; --paper: #F4EFE6; --card: #FFFFFF;
+  --muted: #8a7f73; --border: #e0d9cf; --gold: #C4980A;
+  --font-body: 'Outfit', sans-serif; --font-display: 'Cormorant Garamond', serif;
+}
+html, body { min-height: 100%; }
+body { font-family: var(--font-body); background: var(--paper); color: var(--ink); }
+
+/* ── HERO ── */
+.hero {
+  background: var(--terra);
+  min-height: 380px;
+  padding: 0 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* decorative arcs */
+.hero::before {
+  content: '';
+  position: absolute;
+  right: -120px; top: -120px;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  border: 80px solid rgba(255,255,255,0.06);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  right: 80px; bottom: -200px;
+  width: 380px; height: 380px;
+  border-radius: 50%;
+  border: 60px solid rgba(255,255,255,0.04);
+  pointer-events: none;
+}
+
+/* floating arch shapes */
+.arch {
+  position: absolute;
+  pointer-events: none;
+}
+.arch1 { right: 220px; top: 30px; width: 60px; height: 100px; border: 3px solid rgba(255,255,255,0.12); border-radius: 30px 30px 0 0; }
+.arch2 { right: 160px; bottom: 20px; width: 40px; height: 70px; border: 2px solid rgba(255,255,255,0.08); border-radius: 20px 20px 0 0; }
+.arch3 { right: 300px; top: 60px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,0.08); }
+
+.hero-eyebrow {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 1.2rem;
+}
+
+.hero-topbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  padding-top: 1.8rem;
+}
+
+.hero-logo {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-style: italic;
+  color: white;
+  text-decoration: none;
+}
+
+.hero-sep { color: rgba(255,255,255,0.25); font-size: 0.9rem; }
+
+.hero-nav {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.5);
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  font-weight: 700;
+  color: white;
+  line-height: 1.08;
+  max-width: 560px;
+  margin-bottom: 1.1rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-sub {
+  font-size: 0.92rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.6);
+  max-width: 420px;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── TOOLS SECTION ── */
+.tools-section {
+  padding: 3rem 3rem 4rem;
+  max-width: 1100px;
+}
+
+.tools-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tools-header::before {
+  content: '';
+  width: 32px;
+  height: 2px;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+.tools-header-text {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.2rem;
+}
+
+/* ── TOOL CARD ── */
+.tool-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.8rem 1.8rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.tool-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(26,20,16,0.12);
+  border-color: rgba(184,92,42,0.3);
+}
+
+.tool-card:hover .card-arrow {
+  background: var(--terra);
+  color: white;
+  transform: translate(2px, -2px);
+}
+
+/* blob decoration */
+.tool-card::before {
+  content: '';
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--paper);
+  pointer-events: none;
+  transition: background 0.2s;
+}
+.tool-card:hover::before { background: rgba(184,92,42,0.06); }
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.3rem;
+  font-size: 1.4rem;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.card-category {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink);
+  margin-bottom: 0.7rem;
+}
+
+.card-desc {
+  font-size: 0.82rem;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.65;
+  flex: 1;
+  margin-bottom: 1.5rem;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 0.2rem 0.55rem;
+  background: var(--paper);
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.tag.accent {
+  background: rgba(184,92,42,0.1);
+  color: var(--terra-d);
+}
+
+.card-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.card-arrow svg { width: 16px; height: 16px; }
+
+/* SOON CARD */
+.tool-card.soon {
+  opacity: 0.6;
+  pointer-events: none;
+  cursor: default;
+}
+.tool-card.soon::after {
+  content: 'Em breve';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--paper);
+  color: var(--muted);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align: center;
+  padding: 2rem 1rem 3rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 300;
+  border-top: 1px solid var(--border);
+}
+footer a { color: var(--terra); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .hero { padding: 0 1.5rem; min-height: 320px; }
+  .tools-section { padding: 2rem 1.5rem 3rem; }
+  .hero-title { font-size: 2.4rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="arch arch1"></div>
+  <div class="arch arch2"></div>
+  <div class="arch arch3"></div>
+
+  <div class="hero-topbar">
+    <a href="https://gingaarquitetura.com.br" class="hero-logo">Estúdio Ginga</a>
+    <span class="hero-sep">|</span>
+    <span class="hero-nav">Ferramentas Internas</span>
+  </div>
+
+  <div class="hero-eyebrow">Portal de ferramentas</div>
+
+  <h1 class="hero-title">Tudo que o estúdio<br>precisa, <em>num lugar só.</em></h1>
+
+  <p class="hero-sub">Ferramentas práticas para o dia a dia — orçamentos, cálculos e propostas, sem planilhas complicadas.</p>
+</div>
+
+<div class="tools-section">
+  <div class="tools-header">
+    <span class="tools-header-text">Ferramentas disponíveis</span>
+  </div>
+
+  <div class="tools-grid">
+
+    <!-- CALCULADORA -->
+    <a class="tool-card" href="calculadora-ginga/index.html">
+      <div class="card-icon">🏛️</div>
+      <div class="card-category">Precificação</div>
+      <div class="card-title">Calculadora de Orçamento</div>
+      <div class="card-desc">Calcule o valor do projeto em segundos — por tipo de imóvel, área, complexidade e etapas. Gera texto de proposta pronto para enviar.</div>
+      <div class="card-footer">
+        <div class="card-tags">
+          <span class="tag">Residencial</span>
+          <span class="tag">Comercial</span>
+          <span class="tag accent">Proposta</span>
+        </div>
+        <div class="card-arrow">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </a>
+
+    <!-- SOON 1 -->
+    <div class="tool-card soon">
+      <div class="card-icon">📋</div>
+      <div class="card-category">Contrato</div>
+      <div class="card-title">Gerador de Contrato</div>
+      <div class="card-desc">Preencha os dados do projeto e gere um contrato padronizado pronto para assinar, com todas as etapas e condições.</div>
+      <div class="card-footer">
+        <div class="card-tags">
+          <span class="tag">Contratos</span>
+          <span class="tag accent">+ IA</span>
+        </div>
+        <div class="card-arrow">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOON 2 -->
+    <div class="tool-card soon">
+      <div class="card-icon">📅</div>
+      <div class="card-category">Planejamento</div>
+      <div class="card-title">Cronograma de Projeto</div>
+      <div class="card-desc">Monte o cronograma de entregas automaticamente com base nas etapas e na dedicação semanal da equipe.</div>
+      <div class="card-footer">
+        <div class="card-tags">
+          <span class="tag">Cronograma</span>
+          <span class="tag">Equipe</span>
+        </div>
+        <div class="card-arrow">
+          <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  Uso interno · <a href="https://gingaarquitetura.com.br" target="_blank">gingaarquitetura.com.br</a>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Orçamento · Estúdio Ginga</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --terra: #B85C2A; --terra-d: #8f4420; --terra-l: #d4795a;
+  --ink: #1C1712; --paper: #F4EFE6; --card: #FFFFFF;
+  --muted: #8a7f73; --border: #e0d9cf;
+  --font-body: 'Outfit', sans-serif; --font-display: 'Cormorant Garamond', serif;
+}
+html, body { height: 100%; }
+body { font-family: var(--font-body); background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+
+/* TOP BAR */
+.topbar { background: var(--terra); color: white; display: flex; align-items: center; gap: 1rem; padding: 0 1.8rem; height: 50px; flex-shrink: 0; }
+.topbar-back { font-size: 0.78rem; color: rgba(255,255,255,0.7); text-decoration: none; display: flex; align-items: center; gap: 0.4rem; transition: color 0.15s; }
+.topbar-back:hover { color: white; }
+.topbar-logo { font-family: var(--font-display); font-size: 1.05rem; font-style: italic; }
+.topbar-sep { opacity: 0.3; }
+.topbar-title { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.88; }
+
+/* TABS */
+.tabs { background: var(--card); border-bottom: 1px solid var(--border); display: flex; padding: 0 1.8rem; flex-shrink: 0; }
+.tab { padding: 0.8rem 1.1rem; font-size: 0.78rem; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s, border-color .15s; }
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--terra); border-bottom-color: var(--terra); font-weight: 600; }
+
+/* MAIN LAYOUT */
+.main { display: grid; grid-template-columns: 1fr 370px; flex: 1; overflow: hidden; }
+
+/* LEFT */
+.left { padding: 1.6rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.1rem; }
+.block { background: var(--card); border-radius: 8px; border: 1px solid var(--border); padding: 1.3rem 1.5rem; }
+.block-title { font-size: 0.6rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+
+/* TOGGLE GROUP */
+.toggle-group { display: flex; background: var(--paper); border-radius: 6px; padding: 3px; gap: 2px; }
+.tgl { flex: 1; padding: .5rem .8rem; border: none; background: none; border-radius: 4px; font-family: var(--font-body); font-size: .8rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all .18s; }
+.tgl:hover { color: var(--ink); }
+.tgl.active { background: var(--terra); color: white; box-shadow: 0 2px 8px rgba(184,92,42,.25); }
+
+/* FORM */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem 1.1rem; }
+.span2 { grid-column: span 2; }
+.field { display: flex; flex-direction: column; gap: .35rem; }
+.field label { font-size: .7rem; font-weight: 500; color: var(--muted); }
+.field input { border: 1.5px solid var(--border); border-radius: 6px; padding: .58rem .8rem; font-family: var(--font-body); font-size: .86rem; color: var(--ink); background: var(--paper); outline: none; transition: border-color .18s, box-shadow .18s, background .18s; }
+.field input:focus { border-color: var(--terra); background: white; box-shadow: 0 0 0 3px rgba(184,92,42,.1); }
+
+/* STEPPER */
+.stepper { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: 6px; background: var(--paper); overflow: hidden; }
+.stepper:focus-within { border-color: var(--terra); }
+.stepper button { width: 36px; height: 36px; background: none; border: none; cursor: pointer; font-size: 1rem; color: var(--muted); display: flex; align-items: center; justify-content: center; transition: color .15s, background .15s; }
+.stepper button:hover { color: var(--terra); background: rgba(184,92,42,.06); }
+.stepper input { flex: 1; border: none; text-align: center; background: transparent; font-family: var(--font-body); font-size: .88rem; font-weight: 600; color: var(--ink); outline: none; padding: 0; }
+
+/* ESCOPO NOTE */
+.escopo-note { font-size: 0.72rem; color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+
+/* RIGHT PANEL */
+.right { background: var(--ink); color: white; overflow-y: auto; display: flex; flex-direction: column; }
+
+.result-hero { background: var(--terra); padding: 1.8rem 1.5rem 1.5rem; position: relative; overflow: hidden; flex-shrink: 0; }
+.result-hero::after { content: ''; position: absolute; right: -50px; top: -50px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.07); pointer-events: none; }
+.result-hero-label { font-size: .58rem; letter-spacing: .2em; text-transform: uppercase; opacity: .65; margin-bottom: .35rem; }
+.result-hero-value { font-family: var(--font-display); font-size: 2.8rem; font-weight: 600; line-height: 1; transition: all .3s cubic-bezier(.34,1.56,.64,1); position: relative; z-index: 1; }
+.result-hero-value.bump { transform: scale(1.04); }
+.result-hero-sub { font-size: .7rem; opacity: .55; margin-top: .35rem; font-weight: 300; }
+.result-meta { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid rgba(255,255,255,.12); margin-top: 1.2rem; }
+.meta-item { padding: .75rem .5rem .6rem; position: relative; }
+.meta-item+.meta-item::before { content: ''; position: absolute; left: 0; top: 20%; bottom: 20%; width: 1px; background: rgba(255,255,255,.1); }
+.meta-label { font-size: .56rem; letter-spacing: .12em; text-transform: uppercase; opacity: .4; margin-bottom: .25rem; }
+.meta-val { font-size: .86rem; font-weight: 600; }
+
+/* BREAKDOWN */
+.breakdown { flex: 1; padding: 1.3rem 1.5rem .5rem; }
+.bd-sec { font-size: .56rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.28); margin: 1rem 0 .5rem; }
+.bd-sec:first-child { margin-top: 0; }
+.bd-row { display: flex; justify-content: space-between; padding: .34rem 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: .76rem; }
+.bd-row:last-child { border-bottom: none; }
+.bd-row .n { color: rgba(255,255,255,.5); font-weight: 300; }
+.bd-row .v { font-weight: 500; color: rgba(255,255,255,.85); }
+.bd-row.highlight .n { color: rgba(255,255,255,.75); font-weight: 500; }
+.bd-row.highlight .v { color: white; font-weight: 600; }
+.bd-divider { height: 1px; background: rgba(255,255,255,.1); margin: .6rem 0; }
+.bd-total { display: flex; justify-content: space-between; align-items: center; padding: .9rem 0 .5rem; border-top: 1px solid rgba(255,255,255,.14); margin-top: .4rem; }
+.bd-total .n { font-size: .78rem; font-weight: 600; color: rgba(255,255,255,.75); }
+.bd-total .v { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: white; }
+
+/* EXTRAS */
+.right-extra { padding: .5rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: .9rem; flex-shrink: 0; }
+.ex-label { font-size: .58rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: .55rem; }
+.parcelas-btns { display: flex; gap: .35rem; }
+.pbt { flex: 1; padding: .42rem; border: 1.5px solid rgba(255,255,255,.14); background: none; border-radius: 5px; color: rgba(255,255,255,.45); font-family: var(--font-body); font-size: .76rem; font-weight: 500; cursor: pointer; transition: all .15s; }
+.pbt:hover { border-color: rgba(255,255,255,.4); color: white; }
+.pbt.active { background: var(--terra); border-color: var(--terra); color: white; }
+.parcela-det { font-size: .72rem; color: rgba(255,255,255,.4); margin-top: .55rem; line-height: 1.55; font-weight: 300; }
+.proposta-wrap { border-top: 1px solid rgba(255,255,255,.08); padding-top: .9rem; }
+.proposta-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: .55rem; }
+.copy-btn { padding: .22rem .65rem; background: rgba(255,255,255,.1); border: none; border-radius: 4px; color: rgba(255,255,255,.55); font-family: var(--font-body); font-size: .62rem; font-weight: 500; cursor: pointer; transition: all .15s; }
+.copy-btn:hover { background: rgba(255,255,255,.18); color: white; }
+.copy-btn.ok { background: rgba(45,122,78,.5); color: #7ee8a2; }
+.proposta-box { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 6px; padding: .85rem .95rem; font-size: .7rem; line-height: 1.75; color: rgba(255,255,255,.46); white-space: pre-line; font-weight: 300; }
+
+/* PARAMS TAB */
+.params-panel { display: none; padding: 1.8rem; }
+.params-panel.visible { display: block; }
+.params-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; max-width: 720px; }
+.pb { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.1rem 1.3rem; }
+.pb-title { font-size: .6rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); margin-bottom: .9rem; }
+.prow { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .35rem 0; border-bottom: 1px solid var(--border); }
+.prow:last-child { border-bottom: none; }
+.prow-name { font-size: .76rem; color: var(--ink); }
+.prow input { width: 90px; border: 1.5px solid var(--border); border-radius: 5px; padding: .28rem .55rem; font-family: var(--font-body); font-size: .78rem; text-align: right; color: var(--terra-d); font-weight: 600; background: #fff9f5; outline: none; }
+.prow input:focus { border-color: var(--terra); box-shadow: 0 0 0 3px rgba(184,92,42,.1); }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.left { animation: fadeUp .45s ease both; }
+.right { animation: fadeUp .45s .07s ease both; }
+
+@media(max-width:800px) {
+  .main { grid-template-columns: 1fr; overflow: auto; }
+  .right { min-height: 560px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="topbar-back">← voltar</a>
+  <span class="topbar-sep">|</span>
+  <span class="topbar-logo">Estúdio Ginga</span>
+  <span class="topbar-sep">|</span>
+  <span class="topbar-title">Calculadora de Orçamento</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="setTab('calc',this)">Calculadora</div>
+  <div class="tab" onclick="setTab('params',this)">Configurações de parâmetros</div>
+</div>
+
+<!-- PARAMS -->
+<div class="params-panel" id="params-panel">
+  <div class="params-grid">
+    <div class="pb">
+      <div class="pb-title">Custo folha por hora (R$)</div>
+      <div class="prow"><span class="prow-name">Estagiário</span><input id="p-estag" type="number" value="20" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Arq. Júnior</span><input id="p-junior" type="number" value="55" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Arq. Sócias</span><input id="p-socias" type="number" value="90" onchange="render()"></div>
+    </div>
+    <div class="pb">
+      <div class="pb-title">Custos e markup</div>
+      <div class="prow"><span class="prow-name">Custo fixo / hora (R$)</span><input id="p-fixo" type="number" value="9.2" step="0.1" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Markup (fator)</span><input id="p-markup" type="number" value="1.3" step="0.05" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Assessoria mensal (R$)</span><input id="p-assess" type="number" value="650" onchange="render()"></div>
+    </div>
+    <div class="pb">
+      <div class="pb-title">Escala por área</div>
+      <div class="prow"><span class="prow-name">Horas base (apto referência)</span><input id="p-hbase" type="number" value="161" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Área de referência (m²)</span><input id="p-arearef" type="number" value="60" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Expoente de escala área</span><input id="p-exp" type="number" value="0.55" step="0.01" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Horas Projeto Legal</span><input id="p-hlegal" type="number" value="22" onchange="render()"></div>
+    </div>
+    <div class="pb">
+      <div class="pb-title">Fatores</div>
+      <div class="prow"><span class="prow-name">Apartamento</span><input id="p-apto" type="number" value="1.0" step="0.05" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Casa</span><input id="p-casa" type="number" value="1.2" step="0.05" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Comercial</span><input id="p-com" type="number" value="1.1" step="0.05" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Simples</span><input id="p-simples" type="number" value="0.85" step="0.05" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Médio</span><input id="p-medio" type="number" value="1.0" step="0.05" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Complexo</span><input id="p-complexo" type="number" value="1.3" step="0.05" onchange="render()"></div>
+      <div class="prow"><span class="prow-name">Premium</span><input id="p-premium" type="number" value="1.6" step="0.05" onchange="render()"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="main-layout">
+
+  <!-- LEFT -->
+  <div class="left">
+
+    <div class="block">
+      <div class="block-title">Tipo de imóvel</div>
+      <div class="toggle-group">
+        <button class="tgl active" onclick="setTipo('apto',this)">Apartamento</button>
+        <button class="tgl" onclick="setTipo('casa',this)">Casa</button>
+        <button class="tgl" onclick="setTipo('com',this)">Comercial</button>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title">Dados do projeto</div>
+      <div class="form-grid">
+        <div class="field span2">
+          <label>Cliente</label>
+          <input type="text" id="cliente" placeholder="Nome do cliente" oninput="render()">
+        </div>
+        <div class="field span2">
+          <label>Empreendimento</label>
+          <input type="text" id="empreend" placeholder="Ex: Apto Tirol / Casa Cotovelo" oninput="render()">
+        </div>
+        <div class="field">
+          <label>Área (m²)</label>
+          <input type="number" id="area" value="80" min="10" oninput="render()">
+        </div>
+        <div class="field">
+          <label>Cômodos</label>
+          <div class="stepper">
+            <button onclick="stepComodos(-1)">−</button>
+            <input type="number" id="comodos" value="7" readonly>
+            <button onclick="stepComodos(1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title">Complexidade</div>
+      <div class="toggle-group">
+        <button class="tgl" onclick="setComplex('simples',this)">Simples</button>
+        <button class="tgl active" onclick="setComplex('medio',this)">Médio</button>
+        <button class="tgl" onclick="setComplex('complexo',this)">Complexo</button>
+        <button class="tgl" onclick="setComplex('premium',this)">Premium</button>
+      </div>
+    </div>
+
+    <div class="block">
+      <div class="block-title">Escopo</div>
+      <div class="toggle-group">
+        <button class="tgl active" onclick="setEscopo('reforma',this)">Reforma / Interiores</button>
+        <button class="tgl" onclick="setEscopo('nova',this)">Casa nova</button>
+      </div>
+      <div class="escopo-note" id="escopo-note">Sem Projeto Legal</div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+
+    <div class="result-hero">
+      <div class="result-hero-label">Valor total estimado</div>
+      <div class="result-hero-value" id="hero-val">R$ —</div>
+      <div class="result-hero-sub" id="hero-sub">preencha os campos acima</div>
+      <div class="result-meta">
+        <div class="meta-item"><div class="meta-label">Horas</div><div class="meta-val" id="m-horas">—</div></div>
+        <div class="meta-item"><div class="meta-label">R$/hora</div><div class="meta-val" id="m-hora">—</div></div>
+        <div class="meta-item"><div class="meta-label">Markup</div><div class="meta-val" id="m-markup">30%</div></div>
+      </div>
+    </div>
+
+    <div class="breakdown" id="breakdown"></div>
+
+    <div class="right-extra">
+      <div>
+        <div class="ex-label">Forma de pagamento</div>
+        <div class="parcelas-btns">
+          <button class="pbt active" onclick="setParcelas(1,this)">À vista</button>
+          <button class="pbt" onclick="setParcelas(2,this)">2×</button>
+          <button class="pbt" onclick="setParcelas(3,this)">3×</button>
+          <button class="pbt" onclick="setParcelas(4,this)">4×</button>
+        </div>
+        <div class="parcela-det" id="parc-det">—</div>
+      </div>
+      <div class="proposta-wrap">
+        <div class="proposta-hdr">
+          <span class="ex-label" style="margin:0">Texto para proposta</span>
+          <button class="copy-btn" id="copy-btn" onclick="copyProposta()">Copiar</button>
+        </div>
+        <div class="proposta-box" id="proposta-box">—</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── ESTADO ──
+const S = {
+  tipo: 'apto',
+  area: 80,
+  comodos: 7,
+  complexidade: 'medio',
+  escopo: 'reforma', // 'reforma' | 'nova'
+  parcelas: 1,
+};
+
+// ── LÊ PARÂMETROS ──
+function gv(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+
+function P() {
+  const e = gv('p-estag')||20, j = gv('p-junior')||55, s = gv('p-socias')||90;
+  const rateMix = (j + s) / 2; // mix sócias + júnior = 72.5
+  return {
+    rateMix,
+    fixoH:   gv('p-fixo')    || 9.2,
+    markup:  gv('p-markup')  || 1.3,
+    assess:  gv('p-assess')  || 650,
+    hBase:   gv('p-hbase')   || 161,
+    areaRef: gv('p-arearef') || 60,
+    exp:     gv('p-exp')     || 0.55,
+    hLegal:  gv('p-hlegal')  || 22,
+    ft: {
+      apto: gv('p-apto')    || 1.0,
+      casa: gv('p-casa')    || 1.2,
+      com:  gv('p-com')     || 1.1,
+    },
+    fc: {
+      simples:  gv('p-simples')  || 0.85,
+      medio:    gv('p-medio')    || 1.0,
+      complexo: gv('p-complexo') || 1.3,
+      premium:  gv('p-premium')  || 1.6,
+    }
+  };
+}
+
+// ── CÁLCULO (fiel ao Excel aba RAPIDO) ──
+// fator_area  = (area / areaRef) ^ exp
+// fator_comodos = (comodos / 1.3263527) ^ 0.3   [base calibrada no Excel]
+// horas_total = hBase * fatorArea * fatorComodos * fatorComplexidade * fatorTipo
+// custo_folha = horas_total * rateMix
+// custo_fixo  = horas_total * fixoH
+// valor_projeto = (custo_folha + custo_fixo) * markup
+// Se casa nova: adiciona Projeto Legal = (hLegal * rateSocias * markup_legal)
+
+const COMODOS_BASE = 1.3263527280383436; // calibrado para replicar Excel
+
+function calc() {
+  const p = P();
+
+  const fArea     = Math.pow(S.area / p.areaRef, p.exp);
+  const fComodos  = Math.pow(S.comodos / COMODOS_BASE, 0.3);
+  const fComplex  = p.fc[S.complexidade];
+  const fTipo     = p.ft[S.tipo];
+
+  const hTotal = p.hBase * fArea * fComodos * fComplex * fTipo;
+  const custoFolha  = hTotal * p.rateMix;
+  const custoFixo   = hTotal * p.fixoH;
+  const valorProjeto = (custoFolha + custoFixo) * p.markup;
+
+  // Projeto Legal (só casa nova)
+  const temLegal = S.escopo === 'nova';
+  const hLegal   = temLegal ? p.hLegal : 0;
+  // Legal usa rate de sócias (90/h), mas no Excel o valor típico é ~4500
+  // Vamos usar a mesma lógica: hLegal * rateMix * markup
+  const valorLegal = temLegal ? (hLegal * p.rateMix + hLegal * p.fixoH) * p.markup : 0;
+
+  const valorTotal  = valorProjeto + valorLegal;
+  const arredondado = Math.ceil(valorTotal / 100) * 100;
+
+  return {
+    hTotal: Math.round(hTotal),
+    hLegal: Math.round(hLegal),
+    custoFolha,
+    custoFixo,
+    valorProjeto,
+    valorLegal,
+    valorTotal,
+    arredondado,
+    temLegal,
+    p,
+    fArea, fComodos, fComplex, fTipo
+  };
+}
+
+// ── FORMATOS ──
+const brl  = v => 'R$\u00a0' + Math.round(v).toLocaleString('pt-BR');
+const brl2 = v => 'R$\u00a0' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+// ── RENDER ──
+function render() {
+  const r = calc();
+
+  // Hero
+  const hv = document.getElementById('hero-val');
+  hv.textContent = r.arredondado > 0 ? brl(r.arredondado) : 'R$ —';
+  hv.classList.add('bump');
+  setTimeout(() => hv.classList.remove('bump'), 320);
+
+  document.getElementById('hero-sub').textContent =
+    `${r.hTotal}h estimadas · markup ${Math.round((r.p.markup-1)*100)}%`;
+
+  document.getElementById('m-horas').textContent  = r.hTotal + 'h';
+  document.getElementById('m-hora').textContent   = brl(r.arredondado / r.hTotal);
+  document.getElementById('m-markup').textContent = Math.round((r.p.markup-1)*100) + '%';
+
+  // Breakdown
+  const cn = {simples:'Simples', medio:'Médio', complexo:'Complexo', premium:'Premium'}[S.complexidade];
+  const tn = {apto:'Apartamento', casa:'Casa', com:'Comercial'}[S.tipo];
+  const en = S.escopo === 'nova' ? 'Casa nova (c/ Projeto Legal)' : 'Reforma / Interiores';
+
+  let html = '';
+
+  html += `<div class="bd-sec">Composição</div>`;
+  html += `<div class="bd-row"><span class="n">Tipo</span><span class="v">${tn}</span></div>`;
+  html += `<div class="bd-row"><span class="n">Complexidade</span><span class="v">${cn} (×${r.fComplex.toFixed(2)})</span></div>`;
+  html += `<div class="bd-row"><span class="n">Escopo</span><span class="v">${en}</span></div>`;
+  html += `<div class="bd-row"><span class="n">Área (m²)</span><span class="v">${S.area} m² (×${r.fArea.toFixed(2)})</span></div>`;
+  html += `<div class="bd-row"><span class="n">Cômodos</span><span class="v">${S.comodos} (×${r.fComodos.toFixed(2)})</span></div>`;
+
+  html += `<div class="bd-sec">Custo do projeto</div>`;
+  html += `<div class="bd-row"><span class="n">Horas estimadas</span><span class="v">${r.hTotal}h</span></div>`;
+  html += `<div class="bd-row"><span class="n">Custo de folha</span><span class="v">${brl(r.custoFolha)}</span></div>`;
+  html += `<div class="bd-row"><span class="n">Custo fixo rateado</span><span class="v">${brl(r.custoFixo)}</span></div>`;
+  html += `<div class="bd-row highlight"><span class="n">Projeto Arq. + Interiores</span><span class="v">${brl(r.valorProjeto)}</span></div>`;
+
+  if (r.temLegal) {
+    html += `<div class="bd-sec">Projeto Legal</div>`;
+    html += `<div class="bd-row"><span class="n">Horas estimadas</span><span class="v">${r.hLegal}h</span></div>`;
+    html += `<div class="bd-row highlight"><span class="n">Projeto Legal</span><span class="v">${brl(r.valorLegal)}</span></div>`;
+  }
+
+  html += `<div class="bd-sec">Assessoria de obra</div>`;
+  html += `<div class="bd-row"><span class="n">Valor mensal</span><span class="v">${brl2(r.p.assess)}/mês</span></div>`;
+  html += `<div class="bd-row"><span class="n">Cobrada separadamente</span><span class="v">—</span></div>`;
+
+  html += `<div class="bd-total"><span class="n">Total do projeto</span><span class="v">${brl(r.arredondado)}</span></div>`;
+
+  document.getElementById('breakdown').innerHTML = html;
+
+  // Parcelas
+  const vp = r.arredondado / S.parcelas;
+  const descP = {
+    1: `Valor à vista: ${brl2(r.arredondado)}`,
+    2: `2× de ${brl2(vp)} — 1ª na assinatura, 2ª na entrega final.`,
+    3: `3× de ${brl2(vp)} — 1ª na assinatura, 2ª na entrega do anteprojeto, 3ª na entrega final.`,
+    4: `4× de ${brl2(vp)} — 1ª assinatura, 2ª EP, 3ª executivo, 4ª entrega final.`,
+  };
+  document.getElementById('parc-det').textContent = descP[S.parcelas];
+
+  // Proposta
+  const cli = document.getElementById('cliente').value   || '[Cliente]';
+  const emp = document.getElementById('empreend').value  || '[Empreendimento]';
+  const sem = Math.max(4, Math.round(r.hTotal / 30));
+
+  let linhas = `Projeto de arquitetura e interiores: ${brl2(r.valorProjeto)}`;
+  if (r.temLegal) linhas += `\nProjeto Legal: ${brl2(r.valorLegal)}`;
+
+  document.getElementById('proposta-box').textContent =
+`Cliente: ${cli}
+Empreendimento: ${emp}
+Tipo: ${tn} · ${S.area} m² · ${cn}
+Escopo: ${en}
+
+${linhas}
+Total: ${brl2(r.arredondado)}
+
+Pagamento: ${descP[S.parcelas]}
+Prazo: ${sem} semanas (~30h/semana)
+Assessoria de obra: ${brl2(r.p.assess)}/mês (cobrada separadamente)`;
+}
+
+// ── CONTROLES ──
+let _tA = null, _cA = null, _eA = null;
+
+function setTipo(t, btn) {
+  S.tipo = t;
+  if (_tA) _tA.classList.remove('active');
+  btn.classList.add('active'); _tA = btn;
+  render();
+}
+
+function setComplex(c, btn) {
+  S.complexidade = c;
+  if (_cA) _cA.classList.remove('active');
+  btn.classList.add('active'); _cA = btn;
+  render();
+}
+
+function setEscopo(e, btn) {
+  S.escopo = e;
+  if (_eA) _eA.classList.remove('active');
+  btn.classList.add('active'); _eA = btn;
+  document.getElementById('escopo-note').textContent =
+    e === 'nova' ? '+ Projeto Legal incluído automaticamente' : 'Sem Projeto Legal';
+  render();
+}
+
+function stepComodos(d) {
+  S.comodos = Math.max(1, Math.min(40, S.comodos + d));
+  document.getElementById('comodos').value = S.comodos;
+  render();
+}
+
+function setParcelas(n, btn) {
+  S.parcelas = n;
+  document.querySelectorAll('.pbt').forEach((b, i) => b.classList.toggle('active', i+1 === n));
+  render();
+}
+
+function copyProposta() {
+  navigator.clipboard.writeText(document.getElementById('proposta-box').textContent).then(() => {
+    const b = document.getElementById('copy-btn');
+    b.textContent = 'Copiado ✓'; b.classList.add('ok');
+    setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('ok'); }, 2000);
+  });
+}
+
+function setTab(t, btn) {
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('main-layout').style.display = t === 'calc' ? 'grid' : 'none';
+  document.getElementById('params-panel').classList.toggle('visible', t === 'params');
+}
+
+render();
+</script>
+</body>
+</html>
