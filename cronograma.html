@@ -12,126 +12,271 @@
   --ink: #1C1712; --paper: #F4EFE6; --card: #FFFFFF;
   --muted: #8a7f73; --border: #e0d9cf;
   --font-body: 'Outfit', sans-serif; --font-display: 'Cormorant Garamond', serif;
-
-  /* Etapa colors */
-  --c1: #3AAEBC; --c2: #2a8a96; --c3: #5cc4d0;
-  --c4: #7dd4de; --c5: #1d7a86; --c6: #4ab8c5;
-  --c7: #8de0e8; --c8: #3AAEBC; --c9: #2a8a96;
 }
-html, body { height: 100%; }
-body { font-family: var(--font-body); background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
 /* TOP BAR */
-.topbar { background: var(--teal); color: white; display: flex; align-items: center; gap: 1rem; padding: 0 1.8rem; height: 50px; flex-shrink: 0; }
-.topbar-back { font-size: 0.78rem; color: rgba(255,255,255,0.7); text-decoration: none; display: flex; align-items: center; gap: 0.4rem; transition: color .15s; }
+.topbar {
+  background: var(--teal);
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1.8rem;
+  height: 50px;
+  flex-shrink: 0;
+}
+.topbar-back { font-size: .78rem; color: rgba(255,255,255,.7); text-decoration: none; display: flex; align-items: center; gap: .4rem; transition: color .15s; }
 .topbar-back:hover { color: white; }
 .topbar-logo { font-family: var(--font-display); font-size: 1.05rem; font-style: italic; }
-.topbar-sep { opacity: 0.3; }
-.topbar-title { font-size: 0.78rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.88; }
+.topbar-sep { opacity: .3; }
+.topbar-title { font-size: .78rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; opacity: .88; }
 
-/* MAIN */
-.content { flex: 1; display: grid; grid-template-columns: 380px 1fr; min-height: 0; }
+/* PAGE LAYOUT — scroll page, not panes */
+.page { display: flex; gap: 0; flex: 1; }
 
-.sidebar { overflow-y: auto; }
+/* SIDEBAR — fixed width, scrolls independently */
+.sidebar {
+  width: 360px;
+  min-width: 360px;
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: calc(100vh - 50px);
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+}
 
-/* LEFT INPUTS */
-.sidebar { padding: 1.6rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; border-right: 1px solid var(--border); background: var(--card); min-width: 0; max-height: calc(100vh - 50px); }
+/* GANTT AREA */
+.gantt-area {
+  flex: 1;
+  padding: 2rem;
+  min-width: 0;
+  overflow-x: auto;
+}
 
-.block { background: var(--paper); border-radius: 8px; border: 1px solid var(--border); padding: 1.2rem 1.4rem; min-width: 0; overflow: hidden; }
-.block-title { font-size: 0.6rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.9rem; }
+/* BLOCKS */
+.block {
+  background: var(--paper);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  padding: 1.1rem 1.2rem;
+}
+.block-title {
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .85rem;
+}
 
-.toggle-group { display: flex; background: var(--card); border-radius: 6px; padding: 3px; gap: 2px; border: 1px solid var(--border); width: 100%; min-width: 0; box-sizing: border-box; }
-.tgl { flex: 1; padding: .45rem .6rem; border: none; background: none; border-radius: 4px; font-family: var(--font-body); font-size: .76rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all .18s; }
+/* TOGGLE */
+.toggle-group { display: flex; background: var(--card); border-radius: 6px; padding: 3px; gap: 2px; border: 1px solid var(--border); width: 100%; }
+.tgl { flex: 1; padding: .4rem .3rem; border: none; background: none; border-radius: 4px; font-family: var(--font-body); font-size: .7rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all .18s; white-space: nowrap; text-align: center; }
 .tgl:hover { color: var(--ink); }
-.tgl.active { background: var(--teal); color: white; box-shadow: 0 2px 8px rgba(58,174,188,.25); }
+.tgl.active { background: var(--teal); color: white; box-shadow: 0 2px 6px rgba(58,174,188,.25); }
 
-.field { display: flex; flex-direction: column; gap: .35rem; }
-.field label { font-size: .7rem; font-weight: 500; color: var(--muted); }
-.field input { border: 1.5px solid var(--border); border-radius: 6px; padding: .55rem .8rem; font-family: var(--font-body); font-size: .86rem; color: var(--ink); background: var(--card); outline: none; transition: border-color .18s; width: 100%; min-width: 0; }
+/* FIELDS */
+.field { display: flex; flex-direction: column; gap: .3rem; width: 100%; }
+.field label { font-size: .68rem; font-weight: 500; color: var(--muted); }
+.field input {
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: .55rem .75rem;
+  font-family: var(--font-body);
+  font-size: .84rem;
+  color: var(--ink);
+  background: var(--card);
+  outline: none;
+  width: 100%;
+  transition: border-color .18s;
+}
 .field input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(58,174,188,.1); }
 
-.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; min-width: 0; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; width: 100%; min-width: 0; }
 
-.stepper { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: 6px; background: var(--card); overflow: hidden; width: 100%; box-sizing: border-box; }
-.stepper button { width: 34px; height: 34px; background: none; border: none; cursor: pointer; font-size: .95rem; color: var(--muted); display: flex; align-items: center; justify-content: center; transition: color .15s, background .15s; }
+/* STEPPER */
+.stepper { display: flex; align-items: center; border: 1.5px solid var(--border); border-radius: 6px; background: var(--card); overflow: hidden; width: 100%; }
+.stepper button { width: 34px; height: 36px; background: none; border: none; cursor: pointer; font-size: .95rem; color: var(--muted); display: flex; align-items: center; justify-content: center; transition: color .15s, background .15s; flex-shrink: 0; }
 .stepper button:hover { color: var(--teal); background: rgba(58,174,188,.06); }
-.stepper input { flex: 1; border: none; text-align: center; background: transparent; font-family: var(--font-body); font-size: .88rem; font-weight: 600; color: var(--ink); outline: none; padding: 0; }
+.stepper input { flex: 1; border: none; text-align: center; background: transparent; font-family: var(--font-body); font-size: .86rem; font-weight: 600; color: var(--ink); outline: none; min-width: 0; width: 0; }
 
-.gerar-btn { width: 100%; padding: 0.85rem; background: var(--teal); color: white; border: none; border-radius: 8px; font-family: var(--font-body); font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: background .18s, transform .15s; letter-spacing: 0.02em; }
+/* BUTTONS */
+.gerar-btn {
+  width: 100%;
+  padding: .85rem;
+  background: var(--teal);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: .88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s, transform .12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+}
 .gerar-btn:hover { background: var(--teal-d); transform: translateY(-1px); }
 .gerar-btn:active { transform: translateY(0); }
 
-.copy-text-btn { width: 100%; padding: 0.65rem; background: none; color: var(--teal); border: 1.5px solid var(--teal); border-radius: 8px; font-family: var(--font-body); font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: all .18s; }
-.copy-text-btn:hover { background: rgba(58,174,188,.08); }
-.copy-text-btn.ok { background: rgba(45,122,78,.1); border-color: #2d7a4e; color: #2d7a4e; }
+.copy-btn2 {
+  width: 100%;
+  padding: .65rem;
+  background: none;
+  color: var(--teal);
+  border: 1.5px solid var(--teal);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: .82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .18s;
+}
+.copy-btn2:hover { background: rgba(58,174,188,.08); }
+.copy-btn2.ok { border-color: #2d7a4e; color: #2d7a4e; }
 
-/* RIGHT - GANTT */
-.gantt-area { overflow: auto; padding: 1.8rem 2rem; display: flex; flex-direction: column; gap: 1.5rem; max-height: calc(100vh - 50px); }
-
-/* HEADER INFO */
-.gantt-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-.gantt-title { font-family: var(--font-display); font-size: 1.8rem; font-weight: 600; color: var(--ink); line-height: 1.1; }
+/* GANTT HEADER */
+.gantt-meta-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.gantt-title {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.1;
+}
 .gantt-title em { font-style: italic; color: var(--teal-d); }
-.gantt-meta { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-.gm-item { display: flex; flex-direction: column; gap: 0.2rem; }
-.gm-label { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
-.gm-val { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
+.gantt-pills { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; }
+.pill {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: .3rem .85rem;
+  font-size: .7rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.pill.accent { background: rgba(58,174,188,.1); border-color: rgba(58,174,188,.3); color: var(--teal-d); font-weight: 600; }
 
-/* TIMELINE */
-.timeline-wrap { background: var(--card); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+/* TIMELINE TABLE */
+.timeline-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
 
-.timeline-header { display: grid; border-bottom: 1px solid var(--border); background: var(--paper); }
-.week-header { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0.6rem 0.5rem; text-align: center; border-right: 1px solid var(--border); }
-.week-header:last-child { border-right: none; }
-.week-header.current { color: var(--teal); }
+.tl-table { border-collapse: collapse; width: 100%; min-width: 600px; }
 
-.etapa-row-gantt { display: grid; border-bottom: 1px solid rgba(0,0,0,0.04); align-items: center; min-height: 48px; }
-.etapa-row-gantt:last-child { border-bottom: none; }
-.etapa-row-gantt:hover { background: rgba(58,174,188,0.02); }
+.tl-table th {
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: .55rem .6rem;
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+  white-space: nowrap;
+}
+.tl-table th.label-col { text-align: left; min-width: 180px; padding-left: 1rem; }
+.tl-table th.week-col { min-width: 70px; }
 
-.etapa-label-col { padding: 0.6rem 1rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
-.etapa-label-name { font-size: 0.78rem; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.etapa-label-detail { font-size: 0.62rem; color: var(--muted); font-weight: 300; }
+.tl-table td { padding: 0; border-bottom: 1px solid rgba(0,0,0,.04); }
+.tl-table tr:last-child td { border-bottom: none; }
+.tl-table tr:hover td { background: rgba(58,174,188,.02); }
 
-.etapa-bar-col { padding: 0.5rem 0.4rem; border-right: 1px solid rgba(0,0,0,0.04); display: flex; align-items: center; justify-content: center; }
-.etapa-bar-col:last-child { border-right: none; }
+.etapa-label {
+  padding: .6rem 1rem;
+  border-right: 1px solid var(--border);
+}
+.etapa-label-name { font-size: .78rem; font-weight: 500; color: var(--ink); }
+.etapa-label-sub { font-size: .62rem; color: var(--muted); font-weight: 300; margin-top: .1rem; }
 
-.bar-segment { width: 100%; height: 28px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 600; color: white; letter-spacing: 0.04em; transition: opacity .15s; }
-.bar-segment:hover { opacity: 0.85; }
+.bar-cell { padding: .4rem .3rem; text-align: center; }
+.bar { height: 26px; border-radius: 4px; display: block; transition: opacity .15s; }
+.bar:hover { opacity: .8; }
 .bar-start { border-radius: 6px 2px 2px 6px; }
-.bar-mid { border-radius: 2px; }
-.bar-end { border-radius: 2px 6px 6px 2px; }
-.bar-solo { border-radius: 6px; }
+.bar-end   { border-radius: 2px 6px 6px 2px; }
+.bar-mid   { border-radius: 2px; }
+.bar-solo  { border-radius: 6px; }
 
 /* MARCOS */
-.marcos-section { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; }
-.marco-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; border-left: 3px solid var(--teal); }
-.marco-label { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
-.marco-name { font-size: 0.88rem; font-weight: 600; color: var(--ink); margin-bottom: 0.2rem; }
+.marcos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.marco-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--teal);
+  border-radius: 8px;
+  padding: .9rem 1.1rem;
+}
+.marco-label { font-size: .58rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: .25rem; }
+.marco-name { font-size: .82rem; font-weight: 500; color: var(--ink); margin-bottom: .2rem; }
 .marco-date { font-family: var(--font-display); font-size: 1.1rem; font-style: italic; color: var(--teal-d); }
 
-/* PROPOSTA TEXT */
-.proposta-section { background: var(--card); border-radius: 10px; border: 1px solid var(--border); padding: 1.4rem 1.6rem; }
-.proposta-sec-title { font-size: 0.6rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.8rem; }
-.proposta-txt { font-size: 0.78rem; line-height: 1.8; color: var(--ink); white-space: pre-line; font-weight: 300; }
-
-/* EMPTY STATE */
-.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; color: var(--muted); text-align: center; padding: 3rem; }
-.empty-icon { font-size: 3rem; opacity: 0.3; }
-.empty-title { font-family: var(--font-display); font-size: 1.5rem; font-style: italic; color: var(--muted); }
-.empty-sub { font-size: 0.82rem; font-weight: 300; max-width: 280px; line-height: 1.6; }
-
-@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-.gantt-header, .timeline-wrap, .marcos-section, .proposta-section { animation: fadeIn .4s ease both; }
-.marcos-section { animation-delay: .05s; }
-.proposta-section { animation-delay: .1s; }
-
-@media(max-width:900px) {
-  .content { grid-template-columns: 1fr; overflow: auto; height: auto; }
-  .sidebar { border-right: none; border-bottom: 1px solid var(--border); overflow: visible; max-height: none; }
-  .gantt-area { overflow-x: auto; padding: 1.2rem; }
-  .toggle-group .tgl { font-size: .7rem; padding: .4rem .5rem; }
+/* PROPOSTA */
+.proposta-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.3rem 1.5rem;
 }
+.proposta-card-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: .8rem;
+}
+.proposta-card-title { font-size: .6rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.copy-btn-sm { padding: .22rem .65rem; background: var(--paper); border: 1px solid var(--border); border-radius: 4px; color: var(--muted); font-family: var(--font-body); font-size: .62rem; font-weight: 500; cursor: pointer; transition: all .15s; }
+.copy-btn-sm:hover { border-color: var(--teal); color: var(--teal); }
+.copy-btn-sm.ok { background: rgba(45,122,78,.1); border-color: #2d7a4e; color: #2d7a4e; }
+.proposta-txt { font-size: .76rem; line-height: 1.8; color: var(--ink); white-space: pre-line; font-weight: 300; }
+
+/* EMPTY */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+  color: var(--muted);
+  text-align: center;
+}
+.empty-icon { font-size: 3rem; opacity: .25; }
+.empty-title { font-family: var(--font-display); font-size: 1.5rem; font-style: italic; }
+.empty-sub { font-size: .82rem; font-weight: 300; max-width: 300px; line-height: 1.6; }
 </style>
 </head>
 <body>
@@ -144,7 +289,7 @@ body { font-family: var(--font-body); background: var(--paper); color: var(--ink
   <span class="topbar-title">Cronograma de Projeto</span>
 </div>
 
-<div class="content">
+<div class="page">
 
   <!-- SIDEBAR -->
   <div class="sidebar">
@@ -152,33 +297,35 @@ body { font-family: var(--font-body); background: var(--paper); color: var(--ink
     <div class="block">
       <div class="block-title">Tipo de imóvel</div>
       <div class="toggle-group">
-        <button class="tgl active" onclick="setTipo('apto',this)">Apto</button>
-        <button class="tgl" onclick="setTipo('casa',this)">Casa</button>
-        <button class="tgl" onclick="setTipo('com',this)">Comercial</button>
+        <button class="tgl active" onclick="setS('tipo','apto',this)">Apto</button>
+        <button class="tgl" onclick="setS('tipo','casa',this)">Casa</button>
+        <button class="tgl" onclick="setS('tipo','com',this)">Comercial</button>
       </div>
     </div>
 
     <div class="block">
       <div class="block-title">Projeto</div>
-      <div class="form-grid">
-        <div class="field" style="grid-column:span 2">
+      <div style="display:flex;flex-direction:column;gap:.7rem;">
+        <div class="field">
           <label>Cliente</label>
           <input type="text" id="cliente" placeholder="Nome do cliente">
         </div>
-        <div class="field" style="grid-column:span 2">
+        <div class="field">
           <label>Empreendimento</label>
           <input type="text" id="empreend" placeholder="Ex: Apto Tirol">
         </div>
-        <div class="field">
-          <label>Área (m²)</label>
-          <input type="number" id="area" value="80" min="10" >
-        </div>
-        <div class="field">
-          <label>Cômodos</label>
-          <div class="stepper">
-            <button onclick="stepComodos(-1)">−</button>
-            <input type="number" id="comodos" value="7" readonly>
-            <button onclick="stepComodos(1)">+</button>
+        <div class="two-col">
+          <div class="field">
+            <label>Área (m²)</label>
+            <input type="number" id="area" value="80" min="10">
+          </div>
+          <div class="field">
+            <label>Cômodos</label>
+            <div class="stepper">
+              <button onclick="stepComodos(-1)">−</button>
+              <input type="number" id="comodos" value="7" readonly>
+              <button onclick="stepComodos(1)">+</button>
+            </div>
           </div>
         </div>
       </div>
@@ -187,311 +334,259 @@ body { font-family: var(--font-body); background: var(--paper); color: var(--ink
     <div class="block">
       <div class="block-title">Complexidade</div>
       <div class="toggle-group">
-        <button class="tgl" onclick="setComplex('simples',this)">Simples</button>
-        <button class="tgl active" onclick="setComplex('medio',this)">Médio</button>
-        <button class="tgl" onclick="setComplex('complexo',this)">Complexo</button>
-        <button class="tgl" onclick="setComplex('premium',this)">Premium</button>
+        <button class="tgl" onclick="setS('complexidade','simples',this)">Simples</button>
+        <button class="tgl active" onclick="setS('complexidade','medio',this)">Médio</button>
+        <button class="tgl" onclick="setS('complexidade','complexo',this)">Complexo</button>
+        <button class="tgl" onclick="setS('complexidade','premium',this)">Premium</button>
       </div>
     </div>
 
     <div class="block">
       <div class="block-title">Escopo</div>
       <div class="toggle-group">
-        <button class="tgl active" onclick="setEscopo('reforma',this)">Reforma</button>
-        <button class="tgl" onclick="setEscopo('nova',this)">Casa nova</button>
+        <button class="tgl active" onclick="setS('escopo','reforma',this)">Reforma / Interiores</button>
+        <button class="tgl" onclick="setS('escopo','nova',this)">Casa nova</button>
       </div>
     </div>
 
     <div class="block">
       <div class="block-title">Planejamento</div>
-      <div class="form-grid">
-        <div class="field" style="grid-column:span 2">
+      <div style="display:flex;flex-direction:column;gap:.7rem;">
+        <div class="field">
           <label>Data de início</label>
           <input type="date" id="data-inicio">
         </div>
-        <div class="field" style="grid-column:span 2">
+        <div class="field">
           <label>Dedicação da equipe</label>
           <div class="toggle-group">
-            <button class="tgl" onclick="setDedicacao(20,this)">20h/sem</button>
-            <button class="tgl active" onclick="setDedicacao(30,this)">30h/sem</button>
-            <button class="tgl" onclick="setDedicacao(40,this)">40h/sem</button>
+            <button class="tgl" onclick="setS('dedicacao',20,this)">20h/sem</button>
+            <button class="tgl active" onclick="setS('dedicacao',30,this)">30h/sem</button>
+            <button class="tgl" onclick="setS('dedicacao',40,this)">40h/sem</button>
           </div>
         </div>
       </div>
     </div>
 
-    <button class="gerar-btn" onclick="gerar()">Gerar cronograma →</button>
-    <button class="copy-text-btn" id="copy-btn" onclick="copiarTexto()">Copiar texto para proposta</button>
+    <button class="gerar-btn" onclick="gerar()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Gerar cronograma
+    </button>
+    <button class="copy-btn2" id="copy-txt-btn" onclick="copiarTexto()">Copiar texto para proposta</button>
 
   </div>
 
   <!-- GANTT -->
   <div class="gantt-area" id="gantt-area">
-    <div class="empty-state">
+    <div class="empty">
       <div class="empty-icon">🗓️</div>
       <div class="empty-title">Cronograma do projeto</div>
-      <div class="empty-sub">Preencha os dados ao lado e clique em "Gerar cronograma" para visualizar as etapas.</div>
+      <div class="empty-sub">Preencha os dados ao lado e clique em "Gerar cronograma" para visualizar as etapas e datas de entrega.</div>
     </div>
   </div>
 
 </div>
 
 <script>
-// ── ESTADO ──
-const S = {
-  tipo: 'apto', complexidade: 'medio', escopo: 'reforma',
-  dedicacao: 30, propostaTexto: ''
+const S = { tipo:'apto', complexidade:'medio', escopo:'reforma', dedicacao:30 };
+const COMODOS_BASE = 5.277630793094457;
+const PARAMS = { hBase:161, areaRef:60, exp:0.55,
+  ft:{apto:1.0,casa:1.141,com:1.1},
+  fc:{simples:0.85,medio:1.0,complexo:1.3,premium:1.6}
 };
-
-// ── PARÂMETROS (igual calculadora) ──
-const PARAMS = {
-  hBase: 161, areaRef: 60, exp: 0.55,
-  COMODOS_BASE: 5.277630793094457,
-  ft: { apto: 1.0, casa: 1.141, com: 1.1 },
-  fc: { simples: 0.85, medio: 1.0, complexo: 1.3, premium: 1.6 },
-};
-
-// Etapas com % do total de horas
 const ETAPAS = [
-  { id:'atend',  nome:'Atendimento',                 pct: 3/161, fixo: true,  cor: '#2a8a96' },
-  { id:'levant', nome:'Levantamento',                pct: 3/161, fixo: true,  cor: '#3AAEBC' },
-  { id:'ep',     nome:'Estudo Preliminar',           pct:70/161, fixo: false, cor: '#1d7a86' },
-  { id:'legal',  nome:'Projeto Legal',               pct:22/161, fixo: false, cor: '#5cc4d0', somenteNova: true },
-  { id:'compat', nome:'Compatibilização',            pct: 5/161, fixo: false, cor: '#4ab8c5' },
-  { id:'exe',    nome:'Projeto Executivo',           pct:40/161, fixo: false, cor: '#2a8a96' },
-  { id:'det_am', nome:'Det. Áreas Molhadas',         pct:18/161, fixo: false, cor: '#3AAEBC' },
-  { id:'det_as', nome:'Det. Áreas Secas',            pct:22/161, fixo: false, cor: '#1d7a86' },
+  {id:'atend',  nome:'Atendimento',             pct:3/161,  fixo:true,  cor:'#2a8a96'},
+  {id:'levant', nome:'Levantamento de dados',   pct:3/161,  fixo:true,  cor:'#3AAEBC'},
+  {id:'ep',     nome:'Estudo Preliminar',        pct:70/161, fixo:false, cor:'#1d7a86'},
+  {id:'legal',  nome:'Projeto Legal',            pct:22/161, fixo:false, cor:'#5cc4d0', somenteNova:true},
+  {id:'compat', nome:'Compatibilização',         pct:5/161,  fixo:false, cor:'#4ab8c5'},
+  {id:'exe',    nome:'Projeto Executivo',        pct:40/161, fixo:false, cor:'#2a8a96'},
+  {id:'det_am', nome:'Det. Áreas Molhadas',      pct:18/161, fixo:false, cor:'#3AAEBC'},
+  {id:'det_as', nome:'Det. Áreas Secas',         pct:22/161, fixo:false, cor:'#1d7a86'},
 ];
 
-function calcHorasEtapa(e) {
+let _propostaTexto = '';
+const _refs = {};
+
+function setS(key, val, btn) {
+  S[key] = val;
+  const g = btn.closest('.toggle-group');
+  g.querySelectorAll('.tgl').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function stepComodos(d) {
+  const el = document.getElementById('comodos');
+  el.value = Math.max(1, Math.min(40, parseInt(el.value) + d));
+}
+
+function calcHoras(e) {
   const area = parseFloat(document.getElementById('area').value) || 80;
   const comodos = parseInt(document.getElementById('comodos').value) || 7;
   const fArea = Math.pow(area / PARAMS.areaRef, PARAMS.exp);
-  const fComodos = Math.pow(comodos / PARAMS.COMODOS_BASE, 0.3);
-  const fComplex = PARAMS.fc[S.complexidade];
-  const fTipo = PARAMS.ft[S.tipo];
-  if (e.fixo) return e.pct * 161;
-  return (e.pct * 161) * fArea * fComodos * fComplex * fTipo;
+  const fCom  = Math.pow(comodos / COMODOS_BASE, 0.3);
+  const fC    = PARAMS.fc[S.complexidade];
+  const fT    = PARAMS.ft[S.tipo];
+  const hBase = e.pct * 161;
+  return e.fixo ? hBase : hBase * fArea * fCom * fC * fT;
 }
 
-// ── DATA HELPERS ──
-function addDias(date, dias) {
+function addSemanas(date, n) {
   const d = new Date(date);
-  let added = 0;
-  while (added < dias) {
-    d.setDate(d.getDate() + 1);
-    if (d.getDay() !== 0 && d.getDay() !== 6) added++;
-  }
+  d.setDate(d.getDate() + n * 7);
   return d;
 }
 
-function addSemanas(date, semanas) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + semanas * 7);
-  return d;
-}
+function fmt(d) { return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'short', year:'numeric'}); }
+function fmtS(d) { return d.toLocaleDateString('pt-BR', {day:'2-digit', month:'short'}); }
 
-function fmtDate(d) {
-  return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
-}
-
-function fmtDateShort(d) {
-  return d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
-}
-
-// ── GERAR ──
 function gerar() {
-  const area = parseFloat(document.getElementById('area').value) || 80;
+  const area    = parseFloat(document.getElementById('area').value) || 80;
   const comodos = parseInt(document.getElementById('comodos').value) || 7;
-  const cli = document.getElementById('cliente').value || '[Cliente]';
-  const emp = document.getElementById('empreend').value || '[Empreendimento]';
-  const dataInicioStr = document.getElementById('data-inicio').value;
-  const dataInicio = dataInicioStr ? new Date(dataInicioStr + 'T12:00:00') : new Date();
+  const cli     = document.getElementById('cliente').value || '[Cliente]';
+  const emp     = document.getElementById('empreend').value || '[Empreendimento]';
+  const diStr   = document.getElementById('data-inicio').value;
+  const di      = diStr ? new Date(diStr + 'T12:00:00') : new Date();
 
-  // Calcular horas e semanas por etapa
-  const etapasAtivas = ETAPAS.filter(e => !e.somenteNova || S.escopo === 'nova');
-  const etapasComHoras = etapasAtivas.map(e => {
-    const horas = Math.round(calcHorasEtapa(e));
-    const semanas = Math.max(1, Math.ceil(horas / S.dedicacao));
-    return { ...e, horas, semanas };
-  });
+  const etapas = ETAPAS
+    .filter(e => !e.somenteNova || S.escopo === 'nova')
+    .map(e => {
+      const h   = Math.round(calcHoras(e));
+      const sem = Math.max(1, Math.ceil(h / S.dedicacao));
+      return { ...e, h, sem };
+    });
 
-  const totalHoras = etapasComHoras.reduce((s, e) => s + e.horas, 0);
-  const totalSemanas = etapasComHoras.reduce((s, e) => s + e.semanas, 0);
-
-  // Calcular datas
-  let cursor = new Date(dataInicio);
-  const etapasComDatas = etapasComHoras.map(e => {
+  let cursor = new Date(di);
+  const etapasDatas = etapas.map(e => {
     const inicio = new Date(cursor);
-    cursor = addSemanas(cursor, e.semanas);
-    const fim = new Date(cursor);
-    fim.setDate(fim.getDate() - 1);
-    return { ...e, inicio, fim };
+    cursor = addSemanas(cursor, e.sem);
+    return { ...e, inicio, fim: new Date(cursor) };
   });
 
-  const dataFim = new Date(cursor);
+  const totalH   = etapas.reduce((s,e) => s+e.h, 0);
+  const totalSem = etapas.reduce((s,e) => s+e.sem, 0);
+  const dataFim  = new Date(cursor);
 
-  // ── RENDER GANTT ──
-  const LABEL_WIDTH = 160;
-  const COL_WIDTH = 80;
-  const numSemanas = totalSemanas + 1;
-
-  // Build week headers
-  let weekHeaders = `<div class="etapa-label-col" style="min-width:${LABEL_WIDTH}px;max-width:${LABEL_WIDTH}px;border-right:1px solid var(--border);padding:0.6rem 1rem;background:var(--paper);">
-    <span style="font-size:0.6rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);">Etapa</span>
-  </div>`;
-
-  for (let w = 0; w < numSemanas; w++) {
-    const wd = addSemanas(dataInicio, w);
-    weekHeaders += `<div class="week-header" style="min-width:${COL_WIDTH}px;">Sem ${w+1}<br><span style="font-size:.55rem;opacity:.6">${fmtDateShort(wd)}</span></div>`;
+  // Build table
+  const numSem = totalSem + 1;
+  let thead = '<tr><th class="label-col">Etapa</th>';
+  for (let w = 0; w < numSem; w++) {
+    const wd = addSemanas(di, w);
+    thead += '<th class="week-col">Sem ' + (w+1) + '<br><span style="font-size:.5rem;opacity:.6">' + fmtS(wd) + '</span></th>';
   }
+  thead += '</tr>';
 
-  // Build rows
-  let rows = '';
-  etapasComDatas.forEach(e => {
-    const startWeek = Math.round((e.inicio - dataInicio) / (7 * 24 * 3600 * 1000));
-    const cols = [];
-    for (let w = 0; w < numSemanas; w++) {
-      const inBar = w >= startWeek && w < startWeek + e.semanas;
+  let tbody = '';
+  etapasDatas.forEach(e => {
+    const startW = Math.round((e.inicio - di) / (7*24*3600*1000));
+    let row = '<tr><td class="etapa-label"><div class="etapa-label-name">' + e.nome + '</div><div class="etapa-label-sub">' + e.h + 'h · ' + e.sem + ' sem · até ' + fmtS(e.fim) + '</div></td>';
+    for (let w = 0; w < numSem; w++) {
+      const inBar = w >= startW && w < startW + e.sem;
       if (inBar) {
-        const isFirst = w === startWeek;
-        const isLast = w === startWeek + e.semanas - 1;
-        const isSolo = e.semanas === 1;
+        const isSolo  = e.sem === 1;
+        const isFirst = w === startW;
+        const isLast  = w === startW + e.sem - 1;
         const cls = isSolo ? 'bar-solo' : isFirst ? 'bar-start' : isLast ? 'bar-end' : 'bar-mid';
-        const label = isSolo || isFirst ? (e.semanas > 1 ? '' : '') : '';
-        cols.push(`<div class="etapa-bar-col" style="min-width:${COL_WIDTH}px;">
-          <div class="bar-segment ${cls}" style="background:${e.cor};" title="${e.nome} · ${e.horas}h"></div>
-        </div>`);
+        row += '<td class="bar-cell"><div class="bar ' + cls + '" style="background:' + e.cor + '" title="' + e.nome + '"></div></td>';
       } else {
-        cols.push(`<div class="etapa-bar-col" style="min-width:${COL_WIDTH}px;"></div>`);
+        row += '<td class="bar-cell"></td>';
       }
     }
-
-    const gridCols = `${LABEL_WIDTH}px` + ` ${COL_WIDTH}px`.repeat(numSemanas);
-    rows += `<div class="etapa-row-gantt" style="grid-template-columns:${gridCols}">
-      <div class="etapa-label-col" style="min-width:${LABEL_WIDTH}px;max-width:${LABEL_WIDTH}px;">
-        <span class="etapa-label-name">${e.nome}</span>
-        <span class="etapa-label-detail">${e.horas}h · ${e.semanas} sem</span>
-      </div>
-      ${cols.join('')}
-    </div>`;
+    row += '</tr>';
+    tbody += row;
   });
 
-  const gridColsHeader = `${LABEL_WIDTH}px` + ` ${COL_WIDTH}px`.repeat(numSemanas);
-
   // Marcos
-  const marcos = [];
-  const ep = etapasComDatas.find(e => e.id === 'ep');
-  const exe = etapasComDatas.find(e => e.id === 'exe');
-  if (ep) marcos.push({ label: 'Entrega do Anteprojeto', nome: 'Estudo Preliminar', date: ep.fim });
-  if (exe) marcos.push({ label: 'Entrega do Executivo', nome: 'Projeto Executivo', date: exe.fim });
-  marcos.push({ label: 'Entrega Final', nome: 'Projeto completo', date: dataFim });
+  const ep  = etapasDatas.find(e => e.id === 'ep');
+  const exe = etapasDatas.find(e => e.id === 'exe');
+  const marcos = [
+    { label:'Entrega do Anteprojeto', nome:'Estudo Preliminar', date: ep ? ep.fim : dataFim },
+    { label:'Entrega do Executivo',   nome:'Projeto Executivo',  date: exe ? exe.fim : dataFim },
+    { label:'Entrega Final',          nome:'Projeto completo',   date: dataFim },
+  ];
 
-  const marcosHTML = marcos.map(m => `
-    <div class="marco-card">
-      <div class="marco-label">${m.label}</div>
-      <div class="marco-name">${m.nome}</div>
-      <div class="marco-date">${fmtDate(m.date)}</div>
-    </div>
-  `).join('');
-
-  // Texto proposta
-  const tn = { apto:'Apartamento', casa:'Casa', com:'Comercial' }[S.tipo];
-  const cn = { simples:'Simples', medio:'Médio', complexo:'Complexo', premium:'Premium' }[S.complexidade];
+  const tn = {apto:'Apartamento',casa:'Casa',com:'Comercial'}[S.tipo];
+  const cn = {simples:'Simples',medio:'Médio',complexo:'Complexo',premium:'Premium'}[S.complexidade];
   const en = S.escopo === 'nova' ? 'Casa nova' : 'Reforma / Interiores';
 
-  let textoEtapas = etapasComDatas.map(e =>
-    `  • ${e.nome}: ${e.semanas} semana${e.semanas > 1 ? 's' : ''} (${fmtDateShort(e.inicio)} → ${fmtDateShort(e.fim)})`
-  ).join('\n');
+  _propostaTexto =
+    'CRONOGRAMA · ' + emp.toUpperCase() + '\n' +
+    'Cliente: ' + cli + '\n' +
+    'Tipo: ' + tn + ' · ' + area + ' m² · ' + en + ' · ' + cn + '\n\n' +
+    'Início: ' + fmt(di) + '\n' +
+    'Entrega final: ' + fmt(dataFim) + '\n' +
+    'Total: ' + totalSem + ' semanas · ' + totalH + 'h estimadas\n\n' +
+    'ETAPAS:\n' +
+    etapasDatas.map(e => '  • ' + e.nome + ': ' + e.sem + ' semana' + (e.sem>1?'s':'') + ' (' + fmtS(e.inicio) + ' → ' + fmtS(e.fim) + ')').join('\n') + '\n\n' +
+    'MARCOS:\n' +
+    '  • Anteprojeto: ' + fmt(ep ? ep.fim : dataFim) + '\n' +
+    '  • Executivo: '   + fmt(exe ? exe.fim : dataFim) + '\n' +
+    '  • Entrega final: ' + fmt(dataFim) + '\n\n' +
+    'Dedicação: ' + S.dedicacao + 'h/semana';
 
-  S.propostaTexto = `CRONOGRAMA · ${emp.toUpperCase()}
-Cliente: ${cli}
-Tipo: ${tn} · ${area} m² · ${en} · ${cn}
+  document.getElementById('gantt-area').innerHTML =
+    '<div class="gantt-meta-bar">' +
+      '<div><div class="gantt-title">' + (cli === '[Cliente]' ? '<em>Cronograma</em>' : cli) + (emp !== '[Empreendimento]' ? '<br><em style="font-size:1.3rem">' + emp + '</em>' : '') + '</div></div>' +
+      '<div class="gantt-pills">' +
+        '<span class="pill">' + tn + ' · ' + area + 'm²</span>' +
+        '<span class="pill">' + cn + '</span>' +
+        '<span class="pill">' + en + '</span>' +
+        '<span class="pill accent">' + totalSem + ' semanas · ' + totalH + 'h</span>' +
+        '<span class="pill">Início: ' + fmt(di) + '</span>' +
+        '<span class="pill accent">Entrega: ' + fmt(dataFim) + '</span>' +
+      '</div>' +
+    '</div>' +
 
-Início: ${fmtDate(dataInicio)}
-Entrega final: ${fmtDate(dataFim)}
-Total: ${totalSemanas} semanas · ${totalHoras}h estimadas
+    '<div class="timeline-wrap">' +
+      '<table class="tl-table">' +
+        '<thead>' + thead + '</thead>' +
+        '<tbody>' + tbody + '</tbody>' +
+      '</table>' +
+    '</div>' +
 
-ETAPAS:
-${textoEtapas}
+    '<div class="marcos-grid">' +
+      marcos.map(m =>
+        '<div class="marco-card">' +
+          '<div class="marco-label">' + m.label + '</div>' +
+          '<div class="marco-name">' + m.nome + '</div>' +
+          '<div class="marco-date">' + fmt(m.date) + '</div>' +
+        '</div>'
+      ).join('') +
+    '</div>' +
 
-MARCOS:
-  • Entrega do anteprojeto: ${ep ? fmtDate(ep.fim) : '—'}
-  • Entrega do executivo: ${exe ? fmtDate(exe.fim) : '—'}
-  • Entrega final: ${fmtDate(dataFim)}
-
-Dedicação estimada: ${S.dedicacao}h/semana`;
-
-  // ── RENDER ──
-  const gantt = document.getElementById('gantt-area');
-  gantt.innerHTML = `
-    <div class="gantt-header">
-      <div>
-        <div class="gantt-title">${cli === '[Cliente]' ? '<em>Cronograma</em>' : cli}<br><em>${emp === '[Empreendimento]' ? '' : emp}</em></div>
-      </div>
-      <div class="gantt-meta">
-        <div class="gm-item"><div class="gm-label">Início</div><div class="gm-val">${fmtDate(dataInicio)}</div></div>
-        <div class="gm-item"><div class="gm-label">Entrega final</div><div class="gm-val">${fmtDate(dataFim)}</div></div>
-        <div class="gm-item"><div class="gm-label">Total</div><div class="gm-val">${totalSemanas} semanas</div></div>
-        <div class="gm-item"><div class="gm-label">Horas</div><div class="gm-val">${totalHoras}h</div></div>
-      </div>
-    </div>
-
-    <div class="timeline-wrap" style="overflow-x:auto;">
-      <div style="min-width:${LABEL_WIDTH + COL_WIDTH * numSemanas}px;">
-        <div class="timeline-header" style="display:grid;grid-template-columns:${gridColsHeader}">
-          ${weekHeaders}
-        </div>
-        ${rows}
-      </div>
-    </div>
-
-    <div class="marcos-section">${marcosHTML}</div>
-
-    <div class="proposta-section">
-      <div class="proposta-sec-title">Texto para proposta</div>
-      <div class="proposta-txt">${S.propostaTexto}</div>
-    </div>
-  `;
+    '<div class="proposta-card">' +
+      '<div class="proposta-card-hdr">' +
+        '<span class="proposta-card-title">Texto para proposta</span>' +
+        '<button class="copy-btn-sm" id="copy-sm-btn" onclick="copiarSm()">Copiar</button>' +
+      '</div>' +
+      '<div class="proposta-txt" id="proposta-txt">' + _propostaTexto + '</div>' +
+    '</div>';
 }
 
 function copiarTexto() {
-  if (!S.propostaTexto) { gerar(); }
-  navigator.clipboard.writeText(S.propostaTexto).then(() => {
-    const b = document.getElementById('copy-btn');
+  if (!_propostaTexto) { gerar(); }
+  navigator.clipboard.writeText(_propostaTexto).then(() => {
+    const b = document.getElementById('copy-txt-btn');
     b.textContent = 'Copiado ✓'; b.classList.add('ok');
     setTimeout(() => { b.textContent = 'Copiar texto para proposta'; b.classList.remove('ok'); }, 2000);
   });
 }
 
-// ── CONTROLES ──
-let _tA = null, _cA = null, _eA = null, _dA = null;
+function copiarSm() {
+  navigator.clipboard.writeText(_propostaTexto).then(() => {
+    const b = document.getElementById('copy-sm-btn');
+    if (!b) return;
+    b.textContent = 'Copiado ✓'; b.classList.add('ok');
+    setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('ok'); }, 2000);
+  });
+}
 
 window.addEventListener('DOMContentLoaded', () => {
-  // Set today as default date
   const today = new Date();
-  const yyyy = today.getFullYear();
-  const mm = String(today.getMonth()+1).padStart(2,'0');
-  const dd = String(today.getDate()).padStart(2,'0');
-  document.getElementById('data-inicio').value = `${yyyy}-${mm}-${dd}`;
-
-  // Init button refs
-  document.querySelectorAll('.toggle-group').forEach(g => {
-    const active = g.querySelector('.tgl.active');
-    if (!active) return;
-    const txt = active.textContent.trim();
-    if (['Apto','Casa','Comercial'].includes(txt)) _tA = active;
-    if (['Simples','Médio','Complexo','Premium'].includes(txt)) _cA = active;
-    if (['Reforma','Casa nova'].includes(txt)) _eA = active;
-    if (txt.includes('h/sem')) _dA = active;
-  });
+  document.getElementById('data-inicio').value =
+    today.getFullYear() + '-' +
+    String(today.getMonth()+1).padStart(2,'0') + '-' +
+    String(today.getDate()).padStart(2,'0');
 });
-
-function setTipo(t, btn) { S.tipo=t; if(_tA)_tA.classList.remove('active'); btn.classList.add('active'); _tA=btn; }
-function setComplex(c, btn) { S.complexidade=c; if(_cA)_cA.classList.remove('active'); btn.classList.add('active'); _cA=btn; }
-function setEscopo(e, btn) { S.escopo=e; if(_eA)_eA.classList.remove('active'); btn.classList.add('active'); _eA=btn; }
-function setDedicacao(d, btn) { S.dedicacao=d; if(_dA)_dA.classList.remove('active'); btn.classList.add('active'); _dA=btn; }
-function stepComodos(d) { const el=document.getElementById('comodos'); el.value=Math.max(1,Math.min(40,parseInt(el.value)+d)); }
 </script>
 </body>
 </html>
