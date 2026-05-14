@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerador de Contrato · Estúdio Ginga</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://unpkg.com/pizzip@3.1.6/dist/pizzip.js"></script>
 <script src="https://unpkg.com/docxtemplater@3.47.1/build/docxtemplater.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -333,11 +333,8 @@ async function gerarContrato() {
   try {
     // Decode template
     const binaryStr = atob(TEMPLATE_B64);
-    const bytes = new Uint8Array(binaryStr.length);
-    for (let i=0; i<binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
-
-    const zip = await JSZip.loadAsync(bytes.buffer);
-    const doc = new docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+    const zip = new PizZip(binaryStr, { base64: false });
+    const doc = new window.docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
 
     // Build data - template supports p1..p3 only (3 parcels in original)
     // For more parcels, we'll add them as extra lines via the p3 slot
@@ -383,7 +380,8 @@ async function gerarContrato() {
     doc.setData(data);
     doc.render();
 
-    const out = await doc.getZip().generateAsync({ type:'blob', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const outBuf = doc.getZip().generate({ type:'arraybuffer', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const out = new Blob([outBuf], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
 
     const nome = v('nome').split(' ');
     const filename = `Contrato_Ginga_${nome[0]}_${nome[nome.length-1]}.docx`;
