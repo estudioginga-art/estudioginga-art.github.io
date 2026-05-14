@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Contrato · Estúdio Ginga</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --teal: #3AAEBC; --teal-d: #2a8a96;
+  --ink: #1C1712; --paper: #F4EFE6; --card: #FFFFFF;
+  --muted: #8a7f73; --border: #e0d9cf;
+  --font-body: 'Outfit', sans-serif; --font-display: 'Cormorant Garamond', serif;
+}
+body { font-family: var(--font-body); background: var(--paper); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+
+.topbar { background: var(--teal); color: white; display: flex; align-items: center; gap: 1rem; padding: 0 1.8rem; height: 50px; flex-shrink: 0; }
+.topbar-back { font-size: .78rem; color: rgba(255,255,255,.7); text-decoration: none; display: flex; align-items: center; gap: .4rem; }
+.topbar-back:hover { color: white; }
+.topbar-logo { font-family: var(--font-display); font-size: 1.05rem; font-style: italic; }
+.topbar-sep { opacity: .3; }
+.topbar-title { font-size: .78rem; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; opacity: .88; }
+
+.tabs { background: var(--card); border-bottom: 1px solid var(--border); display: flex; padding: 0 1.8rem; flex-shrink: 0; }
+.tab { padding: .8rem 1.1rem; font-size: .78rem; font-weight: 500; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color .15s, border-color .15s; }
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--teal); border-bottom-color: var(--teal); font-weight: 600; }
+
+.panel { display: none; flex: 1; }
+.panel.visible { display: flex; }
+
+/* FORM PANEL */
+.form-panel { flex: 1; overflow-y: auto; padding: 2rem; display: flex; gap: 2rem; align-items: flex-start; }
+.form-col { flex: 1; display: flex; flex-direction: column; gap: 1.2rem; max-width: 720px; }
+
+.section-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.4rem 1.6rem; }
+.section-title { font-size: .62rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.2rem; display: flex; align-items: center; gap: .6rem; }
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem 1.1rem; }
+.span2 { grid-column: span 2; }
+.field { display: flex; flex-direction: column; gap: .3rem; }
+.field label { font-size: .7rem; font-weight: 500; color: var(--muted); }
+.field input, .field textarea {
+  border: 1.5px solid var(--border); border-radius: 6px; padding: .6rem .85rem;
+  font-family: var(--font-body); font-size: .86rem; color: var(--ink);
+  background: var(--paper); outline: none; width: 100%;
+  transition: border-color .18s, background .18s;
+}
+.field input:focus, .field textarea:focus { border-color: var(--teal); background: white; box-shadow: 0 0 0 3px rgba(58,174,188,.1); }
+.field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+.field .hint { font-size: .62rem; color: var(--muted); margin-top: .2rem; }
+
+/* PREVIEW SIDE */
+.preview-side {
+  width: 340px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.preview-card { background: var(--ink); color: white; border-radius: 10px; padding: 1.4rem; }
+.preview-label { font-size: .56rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: .4rem; }
+.preview-val { font-size: .88rem; font-weight: 500; color: white; line-height: 1.5; }
+.preview-val.big { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; }
+
+.preview-rows { display: flex; flex-direction: column; gap: .6rem; }
+.preview-row { display: flex; justify-content: space-between; padding: .4rem 0; border-bottom: 1px solid rgba(255,255,255,.07); font-size: .78rem; }
+.preview-row:last-child { border-bottom: none; }
+.preview-row .pn { color: rgba(255,255,255,.45); font-weight: 300; }
+.preview-row .pv { font-weight: 500; color: rgba(255,255,255,.85); }
+
+.gerar-btn {
+  width: 100%; padding: 1rem;
+  background: var(--teal); color: white; border: none; border-radius: 8px;
+  font-family: var(--font-body); font-size: .9rem; font-weight: 600;
+  cursor: pointer; transition: background .18s, transform .12s;
+  display: flex; align-items: center; justify-content: center; gap: .6rem;
+}
+.gerar-btn:hover { background: var(--teal-d); transform: translateY(-1px); }
+.gerar-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.gerar-status { font-size: .72rem; text-align: center; color: var(--muted); min-height: 1rem; }
+.gerar-status.ok { color: #2d7a4e; font-weight: 500; }
+.gerar-status.err { color: #c0392b; }
+
+/* HISTÓRICO PANEL */
+.hist-panel { flex: 1; padding: 2rem; overflow-y: auto; }
+.hist-inner { max-width: 900px; }
+.hist-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+.hist-hdr-title { font-size: .62rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.limpar-btn { padding: .3rem .8rem; background: none; border: 1.5px solid var(--border); border-radius: 5px; font-family: var(--font-body); font-size: .72rem; color: var(--muted); cursor: pointer; }
+.limpar-btn:hover { border-color: #c0392b; color: #c0392b; }
+
+.hist-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.3rem; margin-bottom: .8rem; display: flex; align-items: center; gap: 1rem; }
+.hist-card:hover { border-color: var(--teal); }
+.hist-info { flex: 1; min-width: 0; }
+.hist-nome { font-size: .88rem; font-weight: 600; color: var(--ink); margin-bottom: .15rem; }
+.hist-det { font-size: .7rem; color: var(--muted); font-weight: 300; }
+.hist-valor { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--teal-d); flex-shrink: 0; }
+.hist-data { font-size: .62rem; color: var(--muted); text-align: right; min-width: 55px; flex-shrink: 0; }
+.hist-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: .9rem; padding: .3rem; border-radius: 4px; transition: color .15s; }
+.hist-del:hover { color: #c0392b; }
+.hist-empty { text-align: center; padding: 3rem; color: var(--muted); font-family: var(--font-display); font-style: italic; font-size: 1.1rem; }
+
+/* EXTENSO HELPER */
+.extenso-hint { font-size: .65rem; color: var(--teal-d); margin-top: .25rem; font-weight: 500; }
+.toggle-group { display: flex; background: var(--paper); border-radius: 6px; padding: 3px; gap: 2px; border: 1px solid var(--border); }
+.tgl-p { flex: 1; padding: .45rem .4rem; border: none; background: none; border-radius: 4px; font-family: var(--font-body); font-size: .78rem; font-weight: 500; color: var(--muted); cursor: pointer; transition: all .18s; }
+.tgl-p:hover { color: var(--ink); }
+.tgl-p.active { background: var(--teal); color: white; box-shadow: 0 2px 6px rgba(58,174,188,.25); }
+.field input[readonly] { background: var(--paper); color: var(--teal-d); font-weight: 600; border-style: dashed; }
+.parcela-label { font-size: .65rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--teal-d); margin-bottom: .5rem; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="topbar-back">← voltar</a>
+  <span class="topbar-sep">|</span>
+  <span class="topbar-logo">Estúdio Ginga</span>
+  <span class="topbar-sep">|</span>
+  <span class="topbar-title">Gerador de Contrato</span>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="setTab('form',this)">Novo contrato</div>
+  <div class="tab" onclick="setTab('hist',this)">Contratos gerados</div>
+</div>
+
+<!-- FORM PANEL -->
+<div class="panel visible" id="panel-form">
+<div class="form-panel">
+<div class="form-col">
+
+  <div class="section-card">
+    <div class="section-title">Contratante</div>
+    <div class="form-grid">
+      <div class="field span2">
+        <label>Nome completo</label>
+        <input type="text" id="nome" placeholder="Ex: Maria Silva Santos" oninput="atualizar()">
+      </div>
+      <div class="field">
+        <label>Nacionalidade</label>
+        <input type="text" id="nacionalidade" placeholder="brasileira" oninput="atualizar()">
+      </div>
+      <div class="field">
+        <label>Estado civil</label>
+        <input type="text" id="estadocivil" placeholder="casada" oninput="atualizar()">
+      </div>
+      <div class="field">
+        <label>CPF</label>
+        <input type="text" id="cpf" placeholder="000.000.000-00" oninput="atualizar()">
+      </div>
+      <div class="field">
+        <label>Endereço</label>
+        <input type="text" id="endereco" placeholder="Rua, nº, Bairro, Cidade/UF" oninput="atualizar()">
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">Objeto do contrato</div>
+    <div class="form-grid">
+      <div class="field span2">
+        <label>Endereço do imóvel</label>
+        <input type="text" id="imovel" placeholder="Rua das Flores, 123, Ponta Negra, Natal/RN" oninput="atualizar()">
+      </div>
+      <div class="field span2">
+        <label>Descrição do projeto</label>
+        <textarea id="descricao" placeholder="Ex: residência unifamiliar de dois pavimentos. Térreo: sala, cozinha, suíte... Superior: suíte máster, 2 suítes..." oninput="atualizar()"></textarea>
+        <span class="hint">Esta descrição substitui o parágrafo 2.1 do contrato.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">Pagamento</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Valor total (R$)</label>
+        <input type="number" id="vtotal" placeholder="0" oninput="calcParcelas();autoExtenso('vtotal','vtotal-ext')">
+      </div>
+      <div class="field">
+        <label>Valor total por extenso</label>
+        <input type="text" id="vtotal-ext" placeholder="quarenta mil reais" oninput="atualizar()">
+      </div>
+      <div class="field">
+        <label>Número de parcelas</label>
+        <div class="toggle-group" id="nparcelas-group">
+          <button class="tgl-p" onclick="setNParcelas(1,this)">1×</button>
+          <button class="tgl-p" onclick="setNParcelas(2,this)">2×</button>
+          <button class="tgl-p active" onclick="setNParcelas(3,this)">3×</button>
+          <button class="tgl-p" onclick="setNParcelas(4,this)">4×</button>
+          <button class="tgl-p" onclick="setNParcelas(5,this)">5×</button>
+          <button class="tgl-p" onclick="setNParcelas(6,this)">6×</button>
+          <button class="tgl-p" onclick="setNParcelas(7,this)">7×</button>
+          <button class="tgl-p" onclick="setNParcelas(8,this)">8×</button>
+          <button class="tgl-p" onclick="setNParcelas(9,this)">9×</button>
+          <button class="tgl-p" onclick="setNParcelas(10,this)">10×</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Data da 1ª parcela</label>
+        <input type="date" id="d1" oninput="calcParcelas()">
+      </div>
+    </div>
+
+    <!-- Parcelas geradas dinamicamente -->
+    <div id="parcelas-grid" style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem 1rem;"></div>
+
+    <div class="form-grid" style="margin-top:1rem;">
+      <div class="field">
+        <label>Assessoria mensal (R$)</label>
+        <input type="number" id="vassess" placeholder="650" value="650" oninput="autoExtenso('vassess','vassess-ext');atualizar()">
+      </div>
+      <div class="field">
+        <label>Assessoria por extenso</label>
+        <input type="text" id="vassess-ext" placeholder="seiscentos e cinquenta reais" oninput="atualizar()">
+      </div>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">Dados bancários</div>
+    <div style="background:var(--paper);border-radius:8px;padding:.9rem 1.1rem;font-size:.82rem;color:var(--muted);line-height:1.8;border:1px solid var(--border);">
+      <strong style="color:var(--ink);display:block;margin-bottom:.3rem;">Banco Inter</strong>
+      Favorecido: Estúdio Ginga Arquitetura e Design LTDA.<br>
+      CNPJ (pix): 31.752.598/0001-07 · Pessoa Jurídica
+    </div>
+    <div class="form-grid" style="margin-top:.9rem;">
+      <div class="field span2">
+        <label>Data de assinatura</label>
+        <input type="date" id="dataassin" oninput="atualizar()">
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PREVIEW -->
+<div class="preview-side">
+  <div class="preview-card">
+    <div class="preview-label">Contratante</div>
+    <div class="preview-val" id="prev-nome">—</div>
+    <div style="margin-top:.8rem;">
+      <div class="preview-label">CPF</div>
+      <div class="preview-val" id="prev-cpf">—</div>
+    </div>
+    <div style="margin-top:.8rem;">
+      <div class="preview-label">Imóvel</div>
+      <div class="preview-val" id="prev-imovel" style="font-size:.8rem;">—</div>
+    </div>
+  </div>
+
+  <div class="preview-card">
+    <div class="preview-label">Valor total</div>
+    <div class="preview-val big" id="prev-total">R$ —</div>
+    <div style="margin-top:1rem;" class="preview-rows" id="prev-parcelas"></div>
+  </div>
+
+  <button class="gerar-btn" id="gerar-btn" onclick="gerarContrato()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 2H5L2 5v9a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M5 2v4h6V2M5 15v-5h6v5" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+    Gerar contrato (PDF)
+  </button>
+  <div class="gerar-status" id="gerar-status"></div>
+</div>
+</div>
+</div>
+
+<!-- HISTÓRICO PANEL -->
+<div class="panel" id="panel-hist">
+<div class="hist-panel">
+  <div class="hist-inner">
+    <div class="hist-hdr">
+      <span class="hist-hdr-title">Contratos gerados</span>
+      <button class="limpar-btn" onclick="limparHist()">Limpar tudo</button>
+    </div>
+    <div id="hist-lista"></div>
+  </div>
+</div>
+</div>
+
+<script>
+function setTab(t, btn) {
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-form').classList.toggle('visible', t === 'form');
+  document.getElementById('panel-hist').classList.toggle('visible', t === 'hist');
+  if (t === 'hist') renderHist();
+}
+
+function v(id) { return document.getElementById(id)?.value?.trim() || ''; }
+
+// ── PARCELAS STATE ──
+let nParcelas = 3;
+let parcelasData = []; // [{valor, ext, data}]
+
+function setNParcelas(n, btn) {
+  nParcelas = n;
+  document.querySelectorAll('.tgl-p').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  calcParcelas();
+}
+
+function addDays(dateStr, days) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00');
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+}
+
+function fmtDateBR(s) {
+  if (!s) return '';
+  const [y,m,d] = s.split('-');
+  return d + '/' + m + '/' + y;
+}
+
+function numeroExtenso(n) {
+  // Basic extenso for common values
+  const units = ['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez',
+    'onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  const tens = ['','dez','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  const hundreds = ['','cem','duzentos','trezentos','quatrocentos','quinhentos',
+    'seiscentos','setecentos','oitocentos','novecentos'];
+
+  if (n === 0) return 'zero';
+  if (n === 100) return 'cem';
+
+  let parts = [];
+  const v = Math.round(n);
+
+  if (v >= 1000) {
+    const m = Math.floor(v / 1000);
+    const resto = v % 1000;
+    if (m === 1) parts.push('mil');
+    else parts.push(numeroExtenso(m) + ' mil');
+    if (resto > 0) parts.push(numeroExtenso(resto));
+  } else if (v >= 100) {
+    const h = Math.floor(v / 100);
+    const resto = v % 100;
+    if (h === 1 && resto > 0) parts.push('cento');
+    else parts.push(hundreds[h]);
+    if (resto > 0) parts.push(numeroExtenso(resto));
+  } else if (v >= 20) {
+    const t = Math.floor(v / 10);
+    const u = v % 10;
+    parts.push(tens[t]);
+    if (u > 0) parts.push(units[u]);
+  } else {
+    parts.push(units[v]);
+  }
+  return parts.join(' e ');
+}
+
+function valorExtenso(n) {
+  if (!n || n <= 0) return '';
+  const inteiro = Math.floor(n);
+  const cents = Math.round((n - inteiro) * 100);
+  let txt = numeroExtenso(inteiro);
+  txt += inteiro === 1 ? ' real' : ' reais';
+  if (cents > 0) {
+    txt += ' e ' + numeroExtenso(cents);
+    txt += cents === 1 ? ' centavo' : ' centavos';
+  }
+  return txt;
+}
+
+function autoExtenso(sourceId, targetId) {
+  const n = parseFloat(document.getElementById(sourceId)?.value);
+  const el = document.getElementById(targetId);
+  if (!el) return;
+  if (!isNaN(n) && n > 0) {
+    el.value = valorExtenso(n);
+  }
+}
+
+function calcParcelas() {
+  const total = parseFloat(v('vtotal')) || 0;
+  const d1 = v('d1');
+  if (!total || !d1 || nParcelas < 1) {
+    renderParcelas([]);
+    return;
+  }
+
+  const valorBase = Math.floor((total / nParcelas) * 100) / 100;
+  const resto = Math.round((total - valorBase * nParcelas) * 100) / 100;
+
+  parcelasData = [];
+  for (let i = 0; i < nParcelas; i++) {
+    const val = i === 0 ? valorBase + resto : valorBase; // first parcel gets the rounding
+    const data = addDays(d1, i * 30);
+    parcelasData.push({
+      valor: val,
+      ext: valorExtenso(val),
+      data: fmtDateBR(data),
+      dataISO: data,
+    });
+  }
+
+  renderParcelas(parcelasData);
+  atualizar();
+}
+
+function renderParcelas(parcelas) {
+  const grid = document.getElementById('parcelas-grid');
+  if (!parcelas.length) { grid.innerHTML = ''; return; }
+
+  grid.innerHTML = parcelas.map((p, i) => `
+    <div>
+      <div class="parcela-label">${i+1}ª parcela</div>
+      <div class="field" style="margin-bottom:.5rem;">
+        <label>Valor (R$)</label>
+        <input type="text" value="${brl(p.valor)}" readonly>
+      </div>
+      <div class="field" style="margin-bottom:.5rem;">
+        <label>Por extenso</label>
+        <input type="text" id="ext-${i}" value="${p.ext}" oninput="parcelasData[${i}].ext=this.value;atualizar()">
+      </div>
+      <div class="field">
+        <label>Vencimento</label>
+        <input type="text" id="dat-${i}" value="${p.data}" oninput="parcelasData[${i}].data=this.value;atualizar()">
+      </div>
+    </div>
+  `).join('');
+}
+
+function brl(n) {
+  if (!n && n !== 0) return '—';
+  const num = parseFloat(n);
+  if (isNaN(num)) return '—';
+  return 'R$ ' + num.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function fmtDate(s) {
+  if (!s) return '—';
+  const [y,m,d] = s.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function atualizar() {
+  document.getElementById('prev-nome').textContent   = v('nome') || '—';
+  document.getElementById('prev-cpf').textContent    = v('cpf')  || '—';
+  document.getElementById('prev-imovel').textContent = v('imovel') || '—';
+
+  const total = parseFloat(v('vtotal')) || 0;
+  document.getElementById('prev-total').textContent = total ? brl(total) : 'R$ —';
+
+  const rows = parcelasData.map((p, i) => [
+    `${i+1}ª parcela`, brl(p.valor), p.data || '—'
+  ]);
+  rows.push(['Assessoria/mês', brl(v('vassess')), '—']);
+
+  document.getElementById('prev-parcelas').innerHTML = rows.map(([n,val,d]) =>
+    `<div class="preview-row"><span class="pn">${n}</span><span class="pv">${val}${d !== '—' ? ' · '+d : ''}</span></div>`
+  ).join('');
+}
+
+async function gerarContrato() {
+  const btn = document.getElementById('gerar-btn');
+  const status = document.getElementById('gerar-status');
+
+  // Validate required fields
+  // Validate
+  if (!v('nome')) { status.textContent = 'Preencha: Nome do contratante'; status.className='gerar-status err'; return; }
+  if (!v('cpf'))  { status.textContent = 'Preencha: CPF'; status.className='gerar-status err'; return; }
+  if (!v('imovel')){ status.textContent = 'Preencha: Endereço do imóvel'; status.className='gerar-status err'; return; }
+  if (!v('vtotal')){ status.textContent = 'Preencha: Valor total'; status.className='gerar-status err'; return; }
+  if (!v('vtotal-ext')){ status.textContent = 'Preencha: Valor total por extenso'; status.className='gerar-status err'; return; }
+  if (!v('d1'))    { status.textContent = 'Preencha: Data da 1ª parcela'; status.className='gerar-status err'; return; }
+  if (parcelasData.length === 0) { status.textContent = 'Calcule as parcelas primeiro'; status.className='gerar-status err'; return; }
+  if (!v('vassess')){ status.textContent = 'Preencha: Assessoria mensal'; status.className='gerar-status err'; return; }
+  if (!v('vassess-ext')){ status.textContent = 'Preencha: Assessoria por extenso'; status.className='gerar-status err'; return; }
+
+  btn.disabled = true;
+  status.textContent = 'Gerando contrato...';
+  status.className = 'gerar-status';
+
+  const dados = {
+    nome:          v('nome'),
+    nacionalidade: v('nacionalidade') || 'brasileira',
+    estadocivil:   v('estadocivil')   || 'solteira',
+    cpf:           v('cpf'),
+    endereco:      v('endereco'),
+    imovel:        v('imovel'),
+    descricao:     v('descricao'),
+    vtotal:        parseFloat(v('vtotal')),
+    vtotalExt:     v('vtotal-ext'),
+    parcelas:      parcelasData,
+    vassess:       parseFloat(v('vassess')),
+    vassessExt:    v('vassess-ext'),
+    banco:         v('banco'),
+    agencia:       v('agencia'),
+    conta:         v('conta'),
+    dataassin:     v('dataassin') ? fmtDate(v('dataassin')) : new Date().toLocaleDateString('pt-BR'),
+  };
+
+  try {
+    const response = await fetch('/gerar-contrato', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dados)
+    });
+
+    if (!response.ok) throw new Error('Erro ao gerar');
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Contrato_Ginga_${dados.nome.split(' ')[0]}_${dados.nome.split(' ').slice(-1)[0]}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    // Salvar no histórico
+    const hist = JSON.parse(localStorage.getItem('ginga_contratos') || '[]');
+    hist.unshift({ id: Date.now(), data: new Date().toLocaleDateString('pt-BR'), nome: dados.nome, imovel: dados.imovel, total: dados.vtotal });
+    localStorage.setItem('ginga_contratos', JSON.stringify(hist));
+
+    status.textContent = '✓ Contrato gerado e baixado!';
+    status.className = 'gerar-status ok';
+  } catch (e) {
+    status.textContent = 'Erro ao gerar contrato. Tente novamente.';
+    status.className = 'gerar-status err';
+  }
+
+  btn.disabled = false;
+}
+
+function renderHist() {
+  const lista = JSON.parse(localStorage.getItem('ginga_contratos') || '[]');
+  const el = document.getElementById('hist-lista');
+  if (!lista.length) {
+    el.innerHTML = '<div class="hist-empty">Nenhum contrato gerado ainda.</div>';
+    return;
+  }
+  el.innerHTML = lista.map(o =>
+    '<div class="hist-card">' +
+      '<div class="hist-info">' +
+        '<div class="hist-nome">' + o.nome + '</div>' +
+        '<div class="hist-det">' + o.imovel + '</div>' +
+      '</div>' +
+      '<div class="hist-valor">R$\u00a0' + (o.total||0).toLocaleString('pt-BR') + '</div>' +
+      '<div class="hist-data">' + o.data + '</div>' +
+      '<button class="hist-del" onclick="deletarHist(' + o.id + ')" title="Remover">\u2715</button>' +
+    '</div>'
+  ).join('');
+}
+
+function deletarHist(id) {
+  let lista = JSON.parse(localStorage.getItem('ginga_contratos') || '[]');
+  lista = lista.filter(o => o.id !== id);
+  localStorage.setItem('ginga_contratos', JSON.stringify(lista));
+  renderHist();
+}
+
+function limparHist() {
+  if (confirm('Apagar todo o histórico?')) {
+    localStorage.removeItem('ginga_contratos');
+    renderHist();
+  }
+}
+
+// Set today as default date
+window.addEventListener('DOMContentLoaded', () => {
+  const today = new Date();
+  const fmt = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+  document.getElementById('dataassin').value = fmt;
+});
+</script>
+</body>
+</html>
