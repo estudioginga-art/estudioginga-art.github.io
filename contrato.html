@@ -334,7 +334,10 @@ async function gerarContrato() {
     // Decode template
     const binaryStr = atob(TEMPLATE_B64);
     const zip = new PizZip(binaryStr, { base64: false });
-    const doc = new window.docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+    const Docxtemplater = window.docxtemplater;
+    const doc = new Docxtemplater();
+    doc.loadZip(zip);
+    doc.setOptions({ paragraphLoop: true, linebreaks: true });
 
     // Build data - template supports p1..p3 only (3 parcels in original)
     // For more parcels, we'll add them as extra lines via the p3 slot
