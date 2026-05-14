@@ -194,7 +194,7 @@ function calcParcelas(){
   if(!total||!d1){document.getElementById('parcelas-grid').innerHTML='';parcelasData=[];atualizar();return;}
   const base=Math.floor((total/nParcelas)*100)/100,resto=Math.round((total-base*nParcelas)*100)/100;
   parcelasData=[];
-  for(let i=0;i<nParcelas;i++){const val=i===0?base+resto:base;const data=fmtDate(addDays(d1,i*30));parcelasData.push({valor:val,ext:valorExtenso(val),data});}
+  for(let i=0;i<nParcelas;i++){const val=i===0?base+resto:base;const data=fmtDate(addMonths(d1,i));parcelasData.push({valor:val,ext:valorExtenso(val),data});}
   renderParcelas();atualizar();
 }
 function renderParcelas(){
