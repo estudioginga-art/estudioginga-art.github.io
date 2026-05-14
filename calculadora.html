@@ -53,7 +53,7 @@ body { font-family: var(--font-body); background: var(--paper); color: var(--ink
 .escopo-note { font-size: .72rem; color: var(--muted); margin-top: .5rem; font-style: italic; }
 
 /* RIGHT */
-.right { background: var(--ink); color: white; overflow-y: auto; display: flex; flex-direction: column; }
+.right { background: var(--ink); color: white; display: flex; flex-direction: column; overflow: hidden; }
 
 .result-hero { background: var(--terra); padding: 1.8rem 1.5rem 1.5rem; position: relative; overflow: hidden; flex-shrink: 0; }
 .result-hero::after { content: ''; position: absolute; right: -50px; top: -50px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.07); pointer-events: none; }
@@ -66,7 +66,7 @@ body { font-family: var(--font-body); background: var(--paper); color: var(--ink
 .meta-label { font-size: .56rem; letter-spacing: .12em; text-transform: uppercase; opacity: .4; margin-bottom: .25rem; }
 .meta-val { font-size: .86rem; font-weight: 600; }
 
-.breakdown { flex: 1; padding: 1.3rem 1.5rem .5rem; }
+.breakdown { flex: 1; padding: 1.3rem 1.5rem .5rem; overflow-y: auto; }
 .bd-sec { font-size: .56rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.28); margin: 1rem 0 .5rem; }
 .bd-sec:first-child { margin-top: 0; }
 .bd-row { display: flex; justify-content: space-between; padding: .34rem 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: .76rem; }
@@ -79,7 +79,7 @@ body { font-family: var(--font-body); background: var(--paper); color: var(--ink
 .bd-total .n { font-size: .78rem; font-weight: 600; color: rgba(255,255,255,.75); }
 .bd-total .v { font-family: var(--font-display); font-size: 1.5rem; font-weight: 600; color: white; }
 
-.right-extra { padding: .5rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: .9rem; flex-shrink: 0; }
+.right-extra { padding: 1rem 1.5rem 1.5rem; display: flex; flex-direction: column; gap: .8rem; flex-shrink: 0; border-top: 1px solid rgba(255,255,255,.1); }
 .ex-label { font-size: .58rem; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: .55rem; }
 .proposta-wrap { border-top: 1px solid rgba(255,255,255,.08); padding-top: .9rem; }
 .proposta-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: .55rem; }
@@ -253,13 +253,6 @@ body { font-family: var(--font-body); background: var(--paper); color: var(--ink
     <div class="breakdown" id="breakdown"></div>
 
     <div class="right-extra">
-      <div class="proposta-wrap">
-        <div class="proposta-hdr">
-          <span class="ex-label" style="margin:0">Texto para proposta</span>
-          <button class="copy-btn" id="copy-btn" onclick="copyProposta()">Copiar</button>
-        </div>
-        <div class="proposta-box" id="proposta-box">—</div>
-      </div>
       <button class="salvar-btn" onclick="salvarOrcamento()">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 2H5L2 5v9a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M5 2v4h6V2M5 15v-5h6v5" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
         Salvar orçamento
