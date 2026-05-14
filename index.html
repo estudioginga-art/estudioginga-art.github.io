@@ -33,7 +33,9 @@ body { font-family: var(--font-body); background: var(--paper); color: var(--ink
 .tools-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
 .tools-header::before { content: ''; width: 32px; height: 2px; background: var(--gold); flex-shrink: 0; }
 .tools-header-text { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
-.tools-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.2rem; justify-items: center; }
+.tools-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
+@media(max-width:1100px){.tools-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){.tools-grid{grid-template-columns:1fr;}}
 .tool-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.8rem 1.8rem 1.5rem; display: flex; flex-direction: column; text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; position: relative; overflow: hidden; }
 .tool-card::before { content: ''; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px; border-radius: 50%; background: var(--paper); pointer-events: none; transition: background 0.2s; }
 .tool-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(26,20,16,0.12); border-color: rgba(184,92,42,0.3); }
@@ -86,7 +88,7 @@ footer a { color: var(--terra); text-decoration: none; }
       <div class="card-title">Gerador de Contrato</div>
       <div class="card-desc">Preencha os dados do cliente, valores e parcelas. Gera o contrato em PDF pronto para assinar.</div>
       <div class="card-footer">
-        <div class="card-tags"><span class="tag">Contratos</span><span class="tag accent">PDF</span></div>
+        <div class="card-tags"><span class="tag">Contratos</span><span class="tag accent">.docx</span></div>
         <div class="card-arrow"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       </div>
     </a>
