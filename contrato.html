@@ -292,8 +292,30 @@ function renderHist(){
   const lista=JSON.parse(localStorage.getItem('ginga_contratos')||'[]');
   const el=document.getElementById('hist-lista');
   if(!lista.length){el.innerHTML='<div class="hist-empty">Nenhum contrato gerado ainda.</div>';return;}
-  el.innerHTML=lista.map(o=>`<div class="hist-card"><div class="hist-info"><div class="hist-nome">${o.nome}</div><div class="hist-det">${o.imovel}</div></div><div class="hist-valor">R$\u00a0${(o.total||0).toLocaleString('pt-BR')}</div><div class="hist-data">${o.data}</div><button class="hist-del" onclick="deletarHist(${o.id})">✕</button></div>`).join('');
+  el.innerHTML=lista.map(o=>`<div class="hist-card">
+    <div class="hist-info"><div class="hist-nome">${o.nome}</div><div class="hist-det">${o.imovel}</div></div>
+    <div class="hist-valor">R$\u00a0${(o.total||0).toLocaleString('pt-BR')}</div>
+    <div class="hist-data">${o.data}</div>
+    ${o.docx ? `<button class="action-btn primary" onclick="baixarNovamente(${o.id})" title="Baixar novamente" style="padding:.3rem .7rem;font-size:.7rem;">↓ .docx</button>` : ''}
+    <button class="hist-del" onclick="deletarHist(${o.id})">✕</button>
+  </div>`).join('');
 }
+function baixarNovamente(id) {
+  const lista = JSON.parse(localStorage.getItem('ginga_contratos')||'[]');
+  const item = lista.find(o => o.id === id);
+  if (!item?.docx) return;
+  const bin = atob(item.docx);
+  const bytes = new Uint8Array(bin.length);
+  for (let i=0; i<bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  const blob = new Blob([bytes], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = item.filename || `Contrato_Ginga_${item.nome.split(' ')[0]}.docx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function deletarHist(id){let l=JSON.parse(localStorage.getItem('ginga_contratos')||'[]');localStorage.setItem('ginga_contratos',JSON.stringify(l.filter(o=>o.id!==id)));renderHist();}
 function limparHist(){if(confirm('Apagar todo o histórico?')){localStorage.removeItem('ginga_contratos');renderHist();}}
 
