@@ -225,7 +225,7 @@ function atualizar(){
   document.getElementById('prev-parcelas').innerHTML=rows.map(([n,val,d])=>`<div class="preview-row"><span class="pn">${n}</span><span class="pv">${val}${d!=='—'?' · '+d:''}</span></div>`).join('');
 }
 
-function gerarContrato(){
+async function gerarContrato(){
   const btn=document.getElementById('gerar-btn'),status=document.getElementById('gerar-status');
   if(!v('nome')){status.textContent='Preencha: Nome';status.className='gerar-status err';return;}
   if(!v('cpf')){status.textContent='Preencha: CPF';status.className='gerar-status err';return;}
@@ -282,11 +282,16 @@ function gerarContrato(){
 
     const nome=v('nome').split(' ');
     const filename=`Contrato_Ginga_${nome[0]}_${nome[nome.length-1]}.docx`;
+    // Convert to base64 BEFORE creating object URL
+    const docxBytes=await out.arrayBuffer();
+    const docxArr=new Uint8Array(docxBytes);
+    let docxB64='';
+    for(let i=0;i<docxArr.length;i+=8192)docxB64+=btoa(String.fromCharCode(...docxArr.slice(i,i+8192)));
+
     const url=URL.createObjectURL(out);
     const a=document.createElement('a');a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
-
     const hist=JSON.parse(localStorage.getItem('ginga_contratos')||'[]');
-    hist.unshift({id:Date.now(),data:new Date().toLocaleDateString('pt-BR'),nome:v('nome'),imovel:v('imovel'),total:parseFloat(v('vtotal'))});
+    hist.unshift({id:Date.now(),data:new Date().toLocaleDateString('pt-BR'),nome:v('nome'),imovel:v('imovel'),total:parseFloat(v('vtotal')),filename,docx:docxB64});
     localStorage.setItem('ginga_contratos',JSON.stringify(hist));
 
     status.textContent='✓ Contrato gerado!';status.className='gerar-status ok';
