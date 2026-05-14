@@ -569,6 +569,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const today = new Date();
   const fmt = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
   document.getElementById('dataassin').value = fmt;
+  // Auto-fill extenso for default assessoria value
+  autoExtenso('vassess', 'vassess-ext');
 });
 </script>
 </body>
