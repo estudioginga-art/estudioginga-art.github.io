@@ -189,6 +189,16 @@ function autoExtenso(s,t){const n=parseFloat(document.getElementById(s)?.value);
 
 let nParcelas=3,parcelasData=[];
 function setNParcelas(n,btn){nParcelas=n;document.querySelectorAll('.tgl-p').forEach(b=>b.classList.remove('active'));btn.classList.add('active');calcParcelas();}
+function addMonths(s,months){
+  if(!s)return'';
+  const d=new Date(s+'T12:00:00');
+  const day=d.getDate();
+  d.setDate(1);
+  d.setMonth(d.getMonth()+months);
+  const maxDay=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  d.setDate(Math.min(day,maxDay));
+  return d.toISOString().split('T')[0];
+}
 function calcParcelas(){
   const total=parseFloat(v('vtotal'))||0,d1=v('d1');
   if(!total||!d1){document.getElementById('parcelas-grid').innerHTML='';parcelasData=[];atualizar();return;}
