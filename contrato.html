@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerador de Contrato · Estúdio Ginga</title>
-<script src="https://unpkg.com/pizzip@3.1.6/dist/pizzip.js"></script>
-<script src="https://unpkg.com/docxtemplater@3.47.1/build/docxtemplater.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.6.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.26.2/docxtemplater.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -333,9 +333,8 @@ async function gerarContrato() {
   try {
     // Decode template
     const binaryStr = atob(TEMPLATE_B64);
-    const zip = new PizZip(binaryStr, { base64: false });
-    const Docxtemplater = window.docxtemplater;
-    const doc = new Docxtemplater();
+    const zip = new JSZip(binaryStr, { base64: false });
+    const doc = new docxtemplater();
     doc.loadZip(zip);
     doc.setOptions({ paragraphLoop: true, linebreaks: true });
 
@@ -383,7 +382,7 @@ async function gerarContrato() {
     doc.setData(data);
     doc.render();
 
-    const outBuf = doc.getZip().generate({ type:'arraybuffer', mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    const outBuf = doc.getZip().generate({ type:'arraybuffer' });
     const out = new Blob([outBuf], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
 
     const nome = v('nome').split(' ');
